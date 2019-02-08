@@ -11,6 +11,11 @@ namespace NCoreEventServer.Models
     public class Subscriber
     {
         /// <summary>
+        /// Unique SubscriberId
+        /// </summary>
+        public string SubscriberId { get; set; }
+
+        /// <summary>
         /// Base Uri To Send the Event or Data To
         /// </summary>
         public Uri BaseUri { get; set; }
