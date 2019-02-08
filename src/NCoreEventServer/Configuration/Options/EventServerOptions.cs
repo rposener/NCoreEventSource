@@ -13,6 +13,7 @@ namespace NCoreEventServer.Configuration
         {
             AutoDiscoverEvents = true;
             AutoDiscoverObjectTypes = true;
+            InjestionBatchSize = 8;
         }
 
         /// <summary>
@@ -24,5 +25,10 @@ namespace NCoreEventServer.Configuration
         /// Allow Autodiscovery of ObjectTypes
         /// </summary>
         public bool AutoDiscoverObjectTypes { get; set; }
+
+        /// <summary>
+        /// Number of Items the InjestionService Processes at a time
+        /// </summary>
+        public int InjestionBatchSize { get; set; }
     }
 }
