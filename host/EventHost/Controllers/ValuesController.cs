@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using NCoreEventServer.Services;
 
 namespace EventHost.Controllers
 {
@@ -10,10 +11,18 @@ namespace EventHost.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
+        private readonly IInjestionService injectionService;
+
+        public ValuesController(IInjestionService injectionService)
+        {
+            this.injectionService = injectionService ?? throw new ArgumentNullException(nameof(injectionService));
+        }
+
         // GET api/values
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
         {
+            injectionService.InjestRequest(new NCoreEventServer.Models.EventMessage { Event = "newcustomer", Topic = "customers" });
             return new string[] { "value1", "value2" };
         }
 
