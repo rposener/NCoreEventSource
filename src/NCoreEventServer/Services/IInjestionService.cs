@@ -1,4 +1,6 @@
-﻿using NCoreEventServer.Models;
+﻿using Microsoft.AspNetCore.Http;
+using NCoreEventServer.Models;
+using NCoreEventServer.Services.Results;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,8 +13,8 @@ namespace NCoreEventServer.Services
         /// <summary>
         /// Injests a New Message off the Wire
         /// </summary>
-        /// <param name="eventMessage"></param>
+        /// <param name="context"></param>
         /// <returns></returns>
-        Task InjestRequest(EventMessage eventMessage);
+        Task<InjestionResult> InjestRequest(HttpContext context);
     }
 }

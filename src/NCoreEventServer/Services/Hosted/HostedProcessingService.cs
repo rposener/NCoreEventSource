@@ -14,17 +14,22 @@ using System.Threading.Tasks;
 
 namespace NCoreEventServer.Services
 {
-    public class InjestionHostedService : BackgroundService
+    /// <summary>
+    /// This service runs on background thread and calls the
+    /// <seealso cref="IEventProcessingService"/> and <seealso cref="IObjectUpdateService"/> for each <seealso cref="EventMessage"/>
+    /// in the <seealso cref="IEventQueueStore"/>.
+    /// </summary>
+    public class HostedProcessingService : BackgroundService
     {
         private readonly IServiceProvider serviceProvider;
         private readonly TriggerService triggerService;
-        private readonly ILogger<InjestionHostedService> logger;
+        private readonly ILogger<HostedProcessingService> logger;
         private readonly IOptions<EventServerOptions> options;
 
-        public InjestionHostedService(
+        public HostedProcessingService(
             IServiceProvider serviceProvider,
             TriggerService triggerService, 
-            ILogger<InjestionHostedService> logger,
+            ILogger<HostedProcessingService> logger,
             IOptions<EventServerOptions> options)
         {
             this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
@@ -60,14 +65,22 @@ namespace NCoreEventServer.Services
         {
             using (var scope = serviceProvider.CreateScope())
             {
+                // Load store and other services necessary for coordination
                 var eventQueueStore = scope.ServiceProvider.GetRequiredService<IEventQueueStore>();
+                var processingService = scope.ServiceProvider.GetRequiredService<IEventProcessingService>();
+                var objectUpdateService = scope.ServiceProvider.GetRequiredService<IObjectUpdateService>();
+
                 IEnumerable<EventMessage> pendingEvents = await eventQueueStore.NextEventsAsync(8);
                 while (pendingEvents.Any((_) => { return true; }))
                 {
                     foreach (var pendingEvent in pendingEvents)
                     {
-                        var processingService = scope.ServiceProvider.GetRequiredService<IEventProcessingService>();
-                        await processingService.ProcessEvent(pendingEvent.Topic, pendingEvent.Event, pendingEvent.EventJson);
+                        // Update either the Event (if Topic is Set) or Object (if ObjectType is set)
+                        if (!String.IsNullOrWhiteSpace(pendingEvent.Topic))
+                            await processingService.ProcessEvent(pendingEvent.Topic, pendingEvent.Event, pendingEvent.EventJson);
+                        if (!String.IsNullOrWhiteSpace(pendingEvent.ObjectType))
+                            await objectUpdateService.UpdateObject(pendingEvent.ObjectType, pendingEvent.ObjectId, pendingEvent.ObjectUpdate);
+                        // Clear the Event as Processed
                         await eventQueueStore.ClearEventAsync(pendingEvent.LogId);
                     }
                     pendingEvents = await eventQueueStore.NextEventsAsync(options.Value.InjestionBatchSize);

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -14,6 +15,7 @@ namespace NCoreEventServer.Configuration
             AutoDiscoverEvents = true;
             AutoDiscoverObjectTypes = true;
             InjestionBatchSize = 8;
+            InjestionPath = "/eventserver/injest";
         }
 
         /// <summary>
@@ -30,5 +32,10 @@ namespace NCoreEventServer.Configuration
         /// Number of Items the InjestionService Processes at a time
         /// </summary>
         public int InjestionBatchSize { get; set; }
+
+        /// <summary>
+        /// Base EventServer Url
+        /// </summary>
+        public PathString InjestionPath { get; set; }
     }
 }

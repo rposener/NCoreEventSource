@@ -11,18 +11,15 @@ namespace EventHost.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
-        private readonly IInjestionService injectionService;
 
-        public ValuesController(IInjestionService injectionService)
+        public ValuesController()
         {
-            this.injectionService = injectionService ?? throw new ArgumentNullException(nameof(injectionService));
         }
 
         // GET api/values
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
         {
-            injectionService.InjestRequest(new NCoreEventServer.Models.EventMessage { Event = "newcustomer", Topic = "customers" });
             return new string[] { "value1", "value2" };
         }
 
