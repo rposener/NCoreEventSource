@@ -1,16 +1,79 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.Extensions.Logging;
+using NCoreEventServer.Models;
+using NCoreEventServer.Stores;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.JsonPatch;
 
 namespace NCoreEventServer.Services
 {
     public class DefaultObjectUpdateService : IObjectUpdateService
     {
-        public Task UpdateObject(string ObjectType, string ObjectId, JsonPatchDocument patchDocument)
+        private readonly ILogger<DefaultObjectUpdateService> logger;
+        private readonly IMetadataStore metadataStore;
+        private readonly IObjectStore objectStore;
+        private readonly ISubscriberStore subscriberStore;
+        private readonly ISubscriberQueueStore subscriberQueueStore;
+
+        public DefaultObjectUpdateService(
+            ILogger<DefaultObjectUpdateService> logger,
+            IMetadataStore metadataStore,
+            IObjectStore objectStore,
+            ISubscriberStore subscriberStore,
+            ISubscriberQueueStore subscriberQueueStore)
         {
-            throw new NotImplementedException();
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.metadataStore = metadataStore ?? throw new ArgumentNullException(nameof(metadataStore));
+            this.objectStore = objectStore ?? throw new ArgumentNullException(nameof(objectStore));
+            this.subscriberStore = subscriberStore ?? throw new ArgumentNullException(nameof(subscriberStore));
+            this.subscriberQueueStore = subscriberQueueStore ?? throw new ArgumentNullException(nameof(subscriberQueueStore));
+        }
+
+        /// <summary>
+        /// Processes an Update to an Object and Notifies any Subscribers of the Update
+        /// </summary>
+        /// <param name="ObjectType"></param>
+        /// <param name="ObjectId"></param>
+        /// <param name="patchDocument"></param>
+        /// <returns></returns>
+        public async Task UpdateObject(string ObjectType, string ObjectId, JsonPatchDocument patchDocument)
+        {
+            logger.LogDebug($"Processing ({ObjectType},{ObjectId})");
+
+            // Check for valid Metadata Type
+            var objectTypes = await metadataStore.GetObjectTypesAsync();
+            if (!objectTypes.Any(ot => ot.Equals(ObjectType, StringComparison.OrdinalIgnoreCase)))
+            {
+                logger.LogWarning($"Not a valid ObjectType");
+                return;
+            }
+
+            // Update the Object
+            var existingObject = await objectStore.GetObjectAsync(ObjectType, ObjectId);
+            var jsonObject = EventStoreSerialization.DeSerializeObject(existingObject);
+            patchDocument.ApplyTo(jsonObject);
+            var newJson = EventStoreSerialization.SerializeObject(jsonObject);
+            await objectStore.SetObjectAsync(ObjectType, ObjectId, newJson);
+
+            // Check for Subscribers
+            var subscriptionDetails = await subscriberStore.GetSubscriptionsToObjectType(ObjectType);
+            if (subscriptionDetails == null || subscriptionDetails.Count() == 0)
+            {
+                logger.LogWarning($"No Subscribers");
+                return;
+            }
+
+            // Create Messages to Notify all Subscribers
+            foreach (var subscriptionDetail in subscriptionDetails)
+            {
+                await subscriberQueueStore.AddSubscriberMessageAsync(new SubscriberMessage
+                {
+                    DestinationUri = new Uri(subscriptionDetail.BaseUri, subscriptionDetail.RelativePath),
+                    SubscriberId = subscriptionDetail.SubscriberId,
+                    JsonBody = newJson
+                });
+            }
         }
     }
 }
