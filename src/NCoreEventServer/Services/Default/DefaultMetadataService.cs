@@ -8,7 +8,12 @@ namespace NCoreEventServer.Services
 {
     public class DefaultMetadataService : IMetadataService
     {
-        public Task AutoDiscoverAsync(EventMessage eventMessage)
+        public Task AutoDiscoverEventsAsync(EventMessage eventMessage)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task AutoDiscoverObjectsAsync(EventMessage eventMessage)
         {
             throw new NotImplementedException();
         }

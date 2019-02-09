@@ -30,5 +30,18 @@ namespace NCoreEventServer.Stores
         /// </summary>
         /// <returns></returns>
         Task ClearEventAsync(long id);
+
+        /// <summary>
+        /// Marks the <seealso cref="EventMessage"/> as Poisoned
+        /// </summary>
+        /// <returns></returns>
+        Task PoisonedEventAsync(long id);
+
+        /// <summary>
+        /// Reads the Last <seealso cref="EventMessage"/>s that were Poison
+        /// </summary>
+        /// <param name="Max">Maximum number of events to Read</param>
+        /// <returns></returns>
+        Task<IEnumerable<EventMessage>> PoisonEventsAsync(int Max);
     }
 }

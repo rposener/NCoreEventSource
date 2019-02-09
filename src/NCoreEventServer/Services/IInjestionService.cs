@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace NCoreEventServer.Services
 {
+    /// <summary>
+    /// This Service Injests Event Requests into the EventServer
+    /// </summary>
     public interface IInjestionService
     {
         /// <summary>

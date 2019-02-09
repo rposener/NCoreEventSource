@@ -67,19 +67,38 @@ namespace NCoreEventServer.Services
             {
                 // Load store and other services necessary for coordination
                 var eventQueueStore = scope.ServiceProvider.GetRequiredService<IEventQueueStore>();
+                var metadataService = scope.ServiceProvider.GetRequiredService<IMetadataService>();
                 var processingService = scope.ServiceProvider.GetRequiredService<IEventProcessingService>();
                 var objectUpdateService = scope.ServiceProvider.GetRequiredService<IObjectUpdateService>();
 
-                IEnumerable<EventMessage> pendingEvents = await eventQueueStore.NextEventsAsync(8);
+                IEnumerable<EventMessage> pendingEvents = await eventQueueStore.NextEventsAsync(options.Value.InjestionBatchSize);
                 while (pendingEvents.Any((_) => { return true; }))
                 {
                     foreach (var pendingEvent in pendingEvents)
                     {
-                        // Update either the Event (if Topic is Set) or Object (if ObjectType is set)
-                        if (!String.IsNullOrWhiteSpace(pendingEvent.Topic))
-                            await processingService.ProcessEvent(pendingEvent.Topic, pendingEvent.Event, pendingEvent.EventJson);
-                        if (!String.IsNullOrWhiteSpace(pendingEvent.ObjectType))
-                            await objectUpdateService.UpdateObject(pendingEvent.ObjectType, pendingEvent.ObjectId, pendingEvent.ObjectUpdate);
+                        try
+                        {
+                            logger.LogDebug($"Processing Event #{pendingEvent.LogId}");
+                            // Start with Metadata updates
+                            if (options.Value.AutoDiscoverEvents)
+                                await metadataService.AutoDiscoverEventsAsync(pendingEvent);
+                            if (options.Value.AutoDiscoverObjectTypes)
+                                await metadataService.AutoDiscoverObjectsAsync(pendingEvent);
+
+                            // Process the Event (if Topic is Set)
+                            if (!pendingEvent.IsEventMessage())
+                                await processingService.ProcessEvent(pendingEvent.Topic, pendingEvent.Event, pendingEvent.EventJson);
+
+                            // Process the Object (if ObjectType is set)
+                            if (!pendingEvent.IsObjectMessage())
+                                await objectUpdateService.UpdateObject(pendingEvent.ObjectType, pendingEvent.ObjectId, pendingEvent.ObjectUpdate);
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.LogCritical(ex, ex.Message);
+                            await eventQueueStore.PoisonedEventAsync(pendingEvent.LogId);
+                            continue;
+                        }
                         // Clear the Event as Processed
                         await eventQueueStore.ClearEventAsync(pendingEvent.LogId);
                     }

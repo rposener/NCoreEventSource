@@ -13,7 +13,14 @@ namespace NCoreEventServer.Services
         /// </summary>
         /// <param name="eventMessage"></param>
         /// <returns></returns>
-        Task AutoDiscoverAsync(EventMessage eventMessage);
+        Task AutoDiscoverEventsAsync(EventMessage eventMessage);
+
+        /// <summary>
+        /// Auto-discovery of any MetaData
+        /// </summary>
+        /// <param name="eventMessage"></param>
+        /// <returns></returns>
+        Task AutoDiscoverObjectsAsync(EventMessage eventMessage);
 
         /// <summary>
         /// Registers an object Type witht the Metadata Store

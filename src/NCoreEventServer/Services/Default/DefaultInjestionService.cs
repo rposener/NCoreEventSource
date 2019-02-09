@@ -21,13 +21,21 @@ namespace NCoreEventServer.Services
         private readonly TriggerService triggerService;
         private readonly ILogger<DefaultInjestionService> logger;
 
-        public DefaultInjestionService(IEventQueueStore eventQueueStore, TriggerService triggerService, ILogger<DefaultInjestionService> logger)
+        public DefaultInjestionService(
+            IEventQueueStore eventQueueStore, 
+            TriggerService triggerService, 
+            ILogger<DefaultInjestionService> logger)
         {
             this.eventQueueStore = eventQueueStore ?? throw new ArgumentNullException(nameof(eventQueueStore));
             this.triggerService = triggerService ?? throw new ArgumentNullException(nameof(triggerService));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        /// <summary>
+        /// Injests a Request into a <seealso cref="EventMessage"/> and sends to the <seealso cref="IEventQueueStore"/>
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns>Result from Injesting the Request</returns>
         public async Task<InjestionResult> InjestRequest(HttpContext context)
         {
 
