@@ -41,7 +41,7 @@ namespace NCoreEventServer.Services
         /// <summary>
         /// Continually injests <seealso cref="EventMessage"/> messages 
         /// until <paramref name="stoppingToken"/> requests Stop
-        /// starts instantly upon <seealso cref="TriggerService.InjestionStart"/> reset 
+        /// starts instantly upon <seealso cref="TriggerService.ProcessingStart"/> reset 
         /// </summary>
         /// <param name="stoppingToken"></param>
         /// <returns></returns>
@@ -52,7 +52,7 @@ namespace NCoreEventServer.Services
                 logger.LogInformation("Starting Injestion!");
                 await ProcessAllMessagesInQueue();
                 logger.LogInformation("Injestion Caught up, Waiting for More Events");
-                triggerService.InjestionStart.WaitOne(TimeSpan.FromSeconds(15), true);
+                triggerService.ProcessingStart.WaitOne(TimeSpan.FromSeconds(15), true);
             }
         }
 
@@ -102,6 +102,11 @@ namespace NCoreEventServer.Services
                         // Clear the Event as Processed
                         await eventQueueStore.ClearEventAsync(pendingEvent.LogId);
                     }
+                    
+                    // Trigger Delivery
+                    triggerService.DeliveryStart.Set();
+
+                    // Keep checking for more Events
                     pendingEvents = await eventQueueStore.NextEventsAsync(options.Value.InjestionBatchSize);
                 }
             }

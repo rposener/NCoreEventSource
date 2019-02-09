@@ -2,8 +2,11 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NCoreEventServer.Services;
 using NCoreEventServer.Stores;
+using Polly;
+using Polly.Extensions.Http;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Text;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -15,6 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             builder.Services.AddSingleton<TriggerService>();
             builder.Services.AddHostedService<HostedProcessingService>();
+            builder.Services.AddHostedService<HostedDeliveryService>();
             return builder;
         }
 
@@ -35,6 +39,31 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddSingleton<ISubscriberQueueStore, InMemorySubscriberQueueStore>();
             builder.Services.AddSingleton<ISubscriberStore, InMemorySubscriberStore>();
             return builder;
+        }
+
+
+        public static IEventServerBuilder AddHttpPostDelivery(this IEventServerBuilder builder)
+        {
+            builder.Services.AddHttpClient<IDeliveryService, DefaultDeliveryService>();
+            return builder;
+        }
+
+        public static IEventServerBuilder AddHttpPostDeliveryWithRetry(this IEventServerBuilder builder, int retryCount = 6)
+        {
+            builder.Services.AddHttpClient<IDeliveryService, DefaultDeliveryService>()
+                .AddPolicyHandler(GetRetryPolicy(retryCount));
+            return builder;
+        }
+
+        static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(int retryCount)
+        {
+            Random jitterer = new Random();
+            return HttpPolicyExtensions
+                .HandleTransientHttpError()
+                .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
+                .WaitAndRetryAsync(retryCount, retryAttempt => 
+                TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))
+                + TimeSpan.FromMilliseconds(jitterer.Next(0, 100)));
         }
     }
 }

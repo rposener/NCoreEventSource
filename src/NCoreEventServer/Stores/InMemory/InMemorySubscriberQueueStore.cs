@@ -37,5 +37,11 @@ namespace NCoreEventServer.Stores
             var nextItem = store.Values.First();
             return Task.FromResult(nextItem);
         }
+
+        public Task<IEnumerable<string>> SubscriberIdsWithPendingMessages()
+        {
+            var subscriberIds = store.Values.Select(m => m.SubscriberId).Distinct().ToArray();
+            return Task.FromResult(subscriberIds.AsEnumerable());
+        }
     }
 }

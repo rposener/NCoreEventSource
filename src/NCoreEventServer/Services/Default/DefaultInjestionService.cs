@@ -68,7 +68,7 @@ namespace NCoreEventServer.Services
 
                 // Store the Message and Trigger background processing
                 await eventQueueStore.AddEventAsync(eventMessage);
-                triggerService.InjestionStart.Set();
+                triggerService.ProcessingStart.Set();
 
                 // Return a Success to the Middleware
                 return InjestionResult.Success;

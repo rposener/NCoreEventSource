@@ -35,5 +35,10 @@ namespace NCoreEventServer.Models
         /// Last time a Failure Occurred
         /// </summary>
         public DateTime? LastFailure { get; set; }
+
+        /// <summary>
+        /// Count of Failure Attempts
+        /// </summary>
+        public int FailureCount { get; set; }
     }
 }

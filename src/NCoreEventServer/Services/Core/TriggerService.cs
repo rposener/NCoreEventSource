@@ -7,11 +7,14 @@ namespace NCoreEventServer.Services
 {
     public class TriggerService
     {
-        public AutoResetEvent InjestionStart { get; set; }
+        public AutoResetEvent ProcessingStart { get; set; }
+
+        public AutoResetEvent DeliveryStart { get; set; }
 
         public TriggerService()
         {
-            InjestionStart = new AutoResetEvent(true);
+            ProcessingStart = new AutoResetEvent(true);
+            DeliveryStart = new AutoResetEvent(true);
         }
     }
 }

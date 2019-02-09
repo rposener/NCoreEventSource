@@ -32,5 +32,11 @@ namespace NCoreEventServer.Stores
         /// <param name="MessageId"></param>
         /// <returns></returns>
         Task ClearMessageAsync(long MessageId);
+
+        /// <summary>
+        /// Returns List of SubscriberIds that have pending messages
+        /// </summary>
+        /// <returns></returns>
+        Task<IEnumerable<string>> SubscriberIdsWithPendingMessages();
     }
 }
