@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NCoreEventServer.Models;
@@ -32,6 +33,47 @@ namespace NCoreEventServer.Stores
         public Task<Subscriber> GetSubscriber(string SubscriberId)
         {
             return Task.FromResult(subscribers[SubscriberId]);
+        }
+
+        public Task<IEnumerable<SubscriptionDetails>> GetSubscriptionsToObjectType(string ObjectType)
+        {
+            var matches = subscribers
+                .Where(sub => sub.Value.Subscriptions.Any(s => s.Type == SubscriptionTypes.Object && s.Topic == ObjectType))
+                .Select(sub => sub.Value).ToArray();
+
+            List<SubscriptionDetails> results = new List<SubscriptionDetails>();
+            foreach (var subscriber in matches)
+            {
+                var subscription = subscriber.Subscriptions
+                    .First(s => s.Type == SubscriptionTypes.Object && s.Topic == ObjectType);
+                results.Add(new SubscriptionDetails
+                {
+                    SubscriberId = subscriber.SubscriberId,
+                    BaseUri = subscriber.BaseUri,
+                    RelativePath = subscription.RelativePath
+                });
+            }
+            return Task.FromResult(results.AsEnumerable());
+        }
+
+        public Task<IEnumerable<SubscriptionDetails>> GetSubscriptionsToTopic(string Topic)
+        {
+            var matches = subscribers
+                .Where(sub => sub.Value.Subscriptions.Any(s => s.Type == SubscriptionTypes.Event && s.Topic == Topic))
+                .Select(sub => sub.Value).ToArray();
+            List<SubscriptionDetails> results = new List<SubscriptionDetails>();
+            foreach (var subscriber in matches)
+            {
+                var subscription = subscriber.Subscriptions
+                    .First(s => s.Type == SubscriptionTypes.Object && s.Topic == Topic);
+                results.Add(new SubscriptionDetails
+                {
+                    SubscriberId = subscriber.SubscriberId,
+                    BaseUri = subscriber.BaseUri,
+                    RelativePath = subscription.RelativePath
+                });
+            }
+            return Task.FromResult(results.AsEnumerable());
         }
 
         public Task UpdateSubscriberAsync(Subscriber subscriber)

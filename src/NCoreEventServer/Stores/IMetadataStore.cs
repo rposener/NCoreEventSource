@@ -11,20 +11,42 @@ namespace NCoreEventServer.Stores
     /// </summary>
     public interface IMetadataStore
     {
-
         /// <summary>
         /// Adds or Updates Topic MetaData
         /// </summary>
         /// <param name="topicMetadata"></param>
         /// <returns></returns>
-        Task SaveTopicAsync(TopicMetadata topicMetadata);
+        Task AddTopicAsync(string Topic);
 
         /// <summary>
-        /// Removes a Topic
+        /// Adds an Event to a Topic
+        /// </summary>
+        /// <param name="Topic"></param>
+        /// <param name="Event"></param>
+        /// <returns></returns>
+        Task AddEventToTopicAsync(string Topic, string Event);
+
+        /// <summary>
+        /// Removes an Event from a Topic
+        /// </summary>
+        /// <param name="Topic"></param>
+        /// <param name="Event"></param>
+        /// <returns></returns>
+        Task RemoveEventFromTopicAsync(string Topic, string Event);
+
+        /// <summary>
+        /// Removes a Topic and all Events
         /// </summary>
         /// <param name="Topic"></param>
         /// <returns></returns>
         Task RemoveTopicAsync(string Topic);
+
+        /// <summary>
+        /// Returns Topic MetaData
+        /// </summary>
+        /// <param name="Topic"></param>
+        /// <returns></returns>
+        Task<TopicMetadata> GetTopicAsync(string Topic);
 
         /// <summary>
         /// Adds an ObjectType
@@ -39,5 +61,11 @@ namespace NCoreEventServer.Stores
         /// <param name="ObjectType"></param>
         /// <returns></returns>
         Task RemoveObjectTypeAsync(string ObjectType);
+
+        /// <summary>
+        /// Gets a list of all ObjectTypes
+        /// </summary>
+        /// <returns></returns>
+        Task<IEnumerable<string>> GetObjectTypesAsync();
     }
 }

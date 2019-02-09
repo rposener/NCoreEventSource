@@ -33,6 +33,20 @@ namespace NCoreEventServer.Stores
         Task<Subscriber> GetSubscriber(string SubscriberId);
 
         /// <summary>
+        /// Returns Subscribers from the Store that Subscribe to the Topic
+        /// </summary>
+        /// <param name="Topic"></param>
+        /// <returns></returns>
+        Task<IEnumerable<SubscriptionDetails>> GetSubscriptionsToTopic(string Topic);
+
+        /// <summary>
+        /// Returns Subscribers from the Store that Subscribe to a specific ObjectType
+        /// </summary>
+        /// <param name="ObjectType"></param>
+        /// <returns></returns>
+        Task<IEnumerable<SubscriptionDetails>> GetSubscriptionsToObjectType(string ObjectType);
+
+        /// <summary>
         /// Deletes a current Subscriber
         /// </summary>
         /// <param name="SubscriberId"></param>

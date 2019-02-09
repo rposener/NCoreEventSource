@@ -1,46 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NCoreEventServer.Models;
+using NCoreEventServer.Stores;
 
 namespace NCoreEventServer.Services
 {
     public class DefaultMetadataService : IMetadataService
     {
-        public Task AutoDiscoverEventsAsync(EventMessage eventMessage)
+        private readonly IMetadataStore metadataStore;
+        private IEnumerable<string> objectTypes;
+
+        public DefaultMetadataService(IMetadataStore metadataStore)
         {
-            throw new NotImplementedException();
+            this.metadataStore = metadataStore ?? throw new ArgumentNullException(nameof(metadataStore));
         }
 
-        public Task AutoDiscoverObjectsAsync(EventMessage eventMessage)
+        public async Task AutoDiscoverEventsAsync(EventMessage eventMessage)
         {
-            throw new NotImplementedException();
+            var topic = await metadataStore.GetTopicAsync(eventMessage.Topic);
+            if (topic == null)
+            {
+                await metadataStore.AddTopicAsync(eventMessage.Topic);
+                await metadataStore.AddEventToTopicAsync(eventMessage.Topic, eventMessage.Event);
+            }
+            else if (!topic.RegisteredEvents.Any(e => e.Equals(eventMessage.Event, StringComparison.OrdinalIgnoreCase)))
+            {
+                await metadataStore.AddEventToTopicAsync(eventMessage.Topic, eventMessage.Event);
+            }
         }
 
-        public Task RegisterGlobalEventAsync(string EventName)
+        public async Task AutoDiscoverObjectsAsync(EventMessage eventMessage)
         {
-            throw new NotImplementedException();
-        }
+            // Check to see if this instance already knows of the ObjectType
+            if (objectTypes != null && objectTypes.Any(t => t.Equals(eventMessage.ObjectType, StringComparison.OrdinalIgnoreCase)))
+                return;
 
-        public Task RegisterObjectEventAsync(string ObjectType, string EventName)
-        {
-            throw new NotImplementedException();
+            objectTypes = await metadataStore.GetObjectTypesAsync();
+            if (!objectTypes.Any(t => t.Equals(eventMessage.ObjectType, StringComparison.OrdinalIgnoreCase)))
+            {
+                await metadataStore.AddObjectTypeAsync(eventMessage.ObjectType);
+            }
         }
-
-        public Task RegisterObjectTypeAsync(string ObjectType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task RegisterTopicAsync(string Topic)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task RegisterTopicEventAsync(string Topic, string EventName)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }
