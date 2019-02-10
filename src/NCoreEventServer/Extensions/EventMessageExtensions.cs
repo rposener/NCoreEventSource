@@ -14,7 +14,7 @@ namespace NCoreEventServer
         /// <returns></returns>
         public static bool IsEventMessage(this EventMessage eventMessage)
         {
-            return !String.IsNullOrWhiteSpace(eventMessage.Event);
+            return !String.IsNullOrWhiteSpace(eventMessage.Topic);
         }
 
         /// <summary>
@@ -24,8 +24,8 @@ namespace NCoreEventServer
         /// <returns></returns>
         public static bool IsObjectMessage(this EventMessage eventMessage)
         {
-            return !(String.IsNullOrWhiteSpace(eventMessage.ObjectType) || 
-                String.IsNullOrWhiteSpace(eventMessage.ObjectId) ||
+            return (!String.IsNullOrWhiteSpace(eventMessage.ObjectType) &&
+                !String.IsNullOrWhiteSpace(eventMessage.ObjectId) &&
                 eventMessage.ObjectUpdate != null);
         }
     }

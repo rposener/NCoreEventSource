@@ -35,11 +35,11 @@ namespace NCoreEventServer.Services
         /// <param name="Event"></param>
         /// <param name="EventData"></param>
         /// <returns></returns>
-        public async Task ProcessEvent(string Topic, string Event, string EventData)
+        public async Task ProcessEvent(string Topic, string EventData)
         {
-            logger.LogDebug($"Processing ({Topic},{Event})");
-            var topicMetadata = await metadataStore.GetTopicAsync(Topic);
-            if (topicMetadata == null)
+            logger.LogDebug($"Processing ({Topic})");
+            var topics = await metadataStore.GetTopicsAsync();
+            if (!topics.Contains(Topic, StringComparer.OrdinalIgnoreCase))
             {
                 logger.LogWarning($"Not a valid topic");
                 return;

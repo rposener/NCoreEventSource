@@ -19,22 +19,6 @@ namespace NCoreEventServer.Stores
         Task AddTopicAsync(string Topic);
 
         /// <summary>
-        /// Adds an Event to a Topic
-        /// </summary>
-        /// <param name="Topic"></param>
-        /// <param name="Event"></param>
-        /// <returns></returns>
-        Task AddEventToTopicAsync(string Topic, string Event);
-
-        /// <summary>
-        /// Removes an Event from a Topic
-        /// </summary>
-        /// <param name="Topic"></param>
-        /// <param name="Event"></param>
-        /// <returns></returns>
-        Task RemoveEventFromTopicAsync(string Topic, string Event);
-
-        /// <summary>
         /// Removes a Topic and all Events
         /// </summary>
         /// <param name="Topic"></param>
@@ -46,7 +30,7 @@ namespace NCoreEventServer.Stores
         /// </summary>
         /// <param name="Topic"></param>
         /// <returns></returns>
-        Task<TopicMetadata> GetTopicAsync(string Topic);
+        Task<IEnumerable<string>> GetTopicsAsync();
 
         /// <summary>
         /// Adds an ObjectType

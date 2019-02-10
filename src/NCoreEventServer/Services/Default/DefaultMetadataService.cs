@@ -12,6 +12,7 @@ namespace NCoreEventServer.Services
     {
         private readonly IMetadataStore metadataStore;
         private IEnumerable<string> objectTypes;
+        private IEnumerable<string> topics;
 
         public DefaultMetadataService(IMetadataStore metadataStore)
         {
@@ -20,15 +21,14 @@ namespace NCoreEventServer.Services
 
         public async Task AutoDiscoverEventsAsync(EventMessage eventMessage)
         {
-            var topic = await metadataStore.GetTopicAsync(eventMessage.Topic);
-            if (topic == null)
+            // Check to see if this instance already knows of the ObjectType
+            if (topics != null && topics.Any(t => t.Equals(eventMessage.Topic, StringComparison.OrdinalIgnoreCase)))
+                return;
+
+            topics = await metadataStore.GetTopicsAsync();
+            if (!topics.Any(t => t.Equals(eventMessage.Topic, StringComparison.OrdinalIgnoreCase)))
             {
                 await metadataStore.AddTopicAsync(eventMessage.Topic);
-                await metadataStore.AddEventToTopicAsync(eventMessage.Topic, eventMessage.Event);
-            }
-            else if (!topic.RegisteredEvents.Any(e => e.Equals(eventMessage.Event, StringComparison.OrdinalIgnoreCase)))
-            {
-                await metadataStore.AddEventToTopicAsync(eventMessage.Topic, eventMessage.Event);
             }
         }
 

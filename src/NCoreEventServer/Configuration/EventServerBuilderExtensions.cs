@@ -17,13 +17,14 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IEventServerBuilder AddCoreServices(this IEventServerBuilder builder)
         {
             builder.Services.AddSingleton<TriggerService>();
-            builder.Services.AddHostedService<HostedProcessingService>();
             builder.Services.AddHostedService<HostedDeliveryService>();
+            builder.Services.AddHostedService<HostedProcessingService>();
             return builder;
         }
 
         public static IEventServerBuilder AddDefaultServices(this IEventServerBuilder builder)
         {
+            builder.Services.TryAddTransient<IRegistrationService, DefaultRegistrationService>();
             builder.Services.TryAddTransient<IInjestionService, DefaultInjestionService>();
             builder.Services.TryAddTransient<IMetadataService, DefaultMetadataService>();
             builder.Services.TryAddTransient<IEventProcessingService, DefaultEventProcessingService>();

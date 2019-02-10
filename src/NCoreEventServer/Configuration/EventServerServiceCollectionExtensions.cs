@@ -36,5 +36,19 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.AddDefaultServices();
             return builder;
         }
+
+        /// <summary>
+        /// Adds Event Server
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
+        public static IEventServerBuilder AddEventServer(this IServiceCollection services, Action<EventServerOptions> configureAction)
+        {
+            services.Configure(configureAction);
+            var builder = new EventServerBuilder(services);
+            builder.AddCoreServices();
+            builder.AddDefaultServices();
+            return builder;
+        }
     }
 }

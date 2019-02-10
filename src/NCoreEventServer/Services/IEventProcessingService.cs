@@ -11,9 +11,8 @@ namespace NCoreEventServer.Services
         /// Processes an event on a Topic
         /// </summary>
         /// <param name="Topic">The Topic (or null if Global)</param>
-        /// <param name="Event"></param>
         /// <param name="EventData"></param>
         /// <returns></returns>
-        Task ProcessEvent(string Topic, string Event, string EventData);
+        Task ProcessEvent(string Topic, string EventData);
     }
 }

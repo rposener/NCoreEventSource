@@ -65,7 +65,7 @@ namespace NCoreEventServer.Stores
             foreach (var subscriber in matches)
             {
                 var subscription = subscriber.Subscriptions
-                    .First(s => s.Type == SubscriptionTypes.Object && s.Topic == Topic);
+                    .First(s => s.Type == SubscriptionTypes.Event && s.Topic == Topic);
                 results.Add(new SubscriptionDetails
                 {
                     SubscriberId = subscriber.SubscriberId,

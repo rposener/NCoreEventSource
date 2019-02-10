@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.329
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCoreEventServer", "src\NCoreEventServer\NCoreEventServer.csproj", "{F0335E65-8D06-4B0C-9047-85D12D976F43}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NCoreEventServer", "src\NCoreEventServer\NCoreEventServer.csproj", "{F0335E65-8D06-4B0C-9047-85D12D976F43}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestHost", "host\TestHost\TestHost.csproj", "{6D28BA6C-34FA-4395-A7CD-F90DF07BDF07}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestHost", "host\TestHost\TestHost.csproj", "{6D28BA6C-34FA-4395-A7CD-F90DF07BDF07}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Hosts", "Hosts", "{1674D169-2706-456C-94BB-1543437A97F1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventHost", "host\EventHost\EventHost.csproj", "{B798E56E-C1A4-4D9A-BE34-E8B2D99EBA21}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventHost", "host\EventHost\EventHost.csproj", "{B798E56E-C1A4-4D9A-BE34-E8B2D99EBA21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCoreEventClient", "src\NCoreEventClient\NCoreEventClient.csproj", "{373E3F78-FF0F-4D9C-88E4-C5B3C98959F7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NCoreEventClient", "src\NCoreEventClient\NCoreEventClient.csproj", "{373E3F78-FF0F-4D9C-88E4-C5B3C98959F7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

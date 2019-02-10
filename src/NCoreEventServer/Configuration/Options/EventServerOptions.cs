@@ -16,6 +16,7 @@ namespace NCoreEventServer.Configuration
             AutoDiscoverObjectTypes = true;
             InjestionBatchSize = 8;
             InjestionPath = "/eventserver/injest";
+            RegistationPath = "/eventserver/register";
         }
 
         /// <summary>
@@ -37,5 +38,10 @@ namespace NCoreEventServer.Configuration
         /// Base EventServer Url
         /// </summary>
         public PathString InjestionPath { get; set; }
+
+        /// <summary>
+        /// Base EventServer Url
+        /// </summary>
+        public PathString RegistationPath { get; set; }
     }
 }

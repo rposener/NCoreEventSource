@@ -3,17 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace NCoreEventServer.Models
+namespace NCoreEventClient
 {
     /// <summary>
     /// Inbound Message when an Event is Raised
     /// </summary>
     public class EventMessage
     {
-        /// <summary>
-        /// The Id Assigned to this Event
-        /// </summary>
-        public long LogId { get; set; }
 
         /// <summary>
         /// Any Topic/Event this is Targeting

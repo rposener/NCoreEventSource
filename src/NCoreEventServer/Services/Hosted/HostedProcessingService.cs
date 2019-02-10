@@ -80,17 +80,17 @@ namespace NCoreEventServer.Services
                         {
                             logger.LogDebug($"Processing Event #{pendingEvent.LogId}");
                             // Start with Metadata updates
-                            if (options.Value.AutoDiscoverEvents)
+                            if (options.Value.AutoDiscoverEvents && pendingEvent.IsEventMessage())
                                 await metadataService.AutoDiscoverEventsAsync(pendingEvent);
-                            if (options.Value.AutoDiscoverObjectTypes)
+                            if (options.Value.AutoDiscoverObjectTypes && pendingEvent.IsObjectMessage())
                                 await metadataService.AutoDiscoverObjectsAsync(pendingEvent);
 
                             // Process the Event (if Topic is Set)
-                            if (!pendingEvent.IsEventMessage())
-                                await processingService.ProcessEvent(pendingEvent.Topic, pendingEvent.Event, pendingEvent.EventJson);
+                            if (pendingEvent.IsEventMessage())
+                                await processingService.ProcessEvent(pendingEvent.Topic, pendingEvent.EventJson);
 
                             // Process the Object (if ObjectType is set)
-                            if (!pendingEvent.IsObjectMessage())
+                            if (pendingEvent.IsObjectMessage())
                                 await objectUpdateService.UpdateObject(pendingEvent.ObjectType, pendingEvent.ObjectId, pendingEvent.ObjectUpdate);
                         }
                         catch (Exception ex)
