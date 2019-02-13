@@ -51,7 +51,7 @@ namespace NCoreEventServer.Services
 
             // Update the Object
             var existingObject = await objectStore.GetObjectAsync(ObjectType, ObjectId);
-            var jsonObject = EventStoreSerialization.DeSerializeObject(existingObject);
+            var jsonObject = EventStoreSerialization.DeSerializeObject(existingObject ?? "{}");
             patchDocument.ApplyTo(jsonObject);
             var newJson = EventStoreSerialization.SerializeObject(jsonObject);
             await objectStore.SetObjectAsync(ObjectType, ObjectId, newJson);
