@@ -16,7 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IEventServerBuilder AddCoreServices(this IEventServerBuilder builder)
         {
-            builder.Services.AddSingleton<TriggerService>();
+            builder.Services.AddSingleton((_) => TriggerService.Instance);
             builder.Services.AddHostedService<HostedDeliveryService>();
             builder.Services.AddHostedService<HostedProcessingService>();
             return builder;
