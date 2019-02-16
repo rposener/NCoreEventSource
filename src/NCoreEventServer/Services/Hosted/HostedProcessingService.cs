@@ -66,7 +66,7 @@ namespace NCoreEventServer.Services
                         logger.LogInformation("Starting Injestion!");
                         await ProcessAllMessagesInQueue();
                         logger.LogInformation("Injestion Caught up, Waiting for More Events");
-                        TriggerService.ProcessingStart.WaitOne(TimeSpan.FromSeconds(15), false);
+                        TriggerService.ProcessingStart.WaitOne(TimeSpan.FromSeconds(15), true);
                     }
                 }
                 catch (Exception ex)

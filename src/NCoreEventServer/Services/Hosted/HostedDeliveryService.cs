@@ -64,7 +64,7 @@ namespace NCoreEventServer.Services
                         logger.LogInformation("Starting Delivery!");
                         await DeliverAllMessagesInQueue();
                         logger.LogInformation("Delivery Caught up, Waiting for More Events");
-                        TriggerService.DeliveryStart.WaitOne(TimeSpan.FromSeconds(15), false);
+                        TriggerService.DeliveryStart.WaitOne(TimeSpan.FromSeconds(15), true);
                     }
                 }
                 catch (Exception ex)
@@ -103,6 +103,8 @@ namespace NCoreEventServer.Services
             using (var scope = serviceProvider.CreateScope())
             {
                 var subscriberStore = scope.ServiceProvider.GetRequiredService<ISubscriberStore>();
+                var queueService = scope.ServiceProvider.GetRequiredService<ISubscriberQueueStore>();
+                var deliveryService = scope.ServiceProvider.GetRequiredService<IDeliveryService>();
 
                 Subscriber subscriber = await subscriberStore.GetSubscriber(SubscriberId);
 
@@ -112,9 +114,6 @@ namespace NCoreEventServer.Services
                     logger.LogWarning($"The Subscriber '{SubscriberId}' is currently marked inactive");
                     return;
                 }
-
-                var queueService = scope.ServiceProvider.GetRequiredService<ISubscriberQueueStore>();
-                var deliveryService = scope.ServiceProvider.GetRequiredService<IDeliveryService>();
 
                 // Deliver each message in sequence until all messages are deliverd
                 var nextMessage = await queueService.NextMessageForAsync(SubscriberId);

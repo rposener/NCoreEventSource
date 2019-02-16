@@ -19,7 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\Hosted\" />
     <Folder Include="Services\Stores\InMemory\" />
   </ItemGroup>
 
