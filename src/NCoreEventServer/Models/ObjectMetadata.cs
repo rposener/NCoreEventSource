@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NCoreEventServer.Models
+﻿namespace NCoreEventServer.Models
 {
 
     public class ObjectMetadata

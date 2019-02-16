@@ -42,7 +42,7 @@ namespace Microsoft.Extensions.DependencyInjection
         static IServiceCollection RegisterServices(IServiceCollection services)
         {
             services.AddHostedService<NCoreRegistrationService>();
-            services.AddHttpClient<NCoreEventServerService>()
+            services.AddHttpClient<NCoreEventService>()
                 .ConfigureHttpClient((provider, client) =>
                 {
                     var options = provider.GetRequiredService<IOptions<NCoreEventOptions>>();

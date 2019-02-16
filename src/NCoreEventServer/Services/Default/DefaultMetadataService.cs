@@ -1,10 +1,9 @@
-﻿using System;
+﻿using NCoreEventServer.Models;
+using NCoreEventServer.Stores;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using NCoreEventServer.Models;
-using NCoreEventServer.Stores;
 
 namespace NCoreEventServer.Services
 {
@@ -19,7 +18,7 @@ namespace NCoreEventServer.Services
             this.metadataStore = metadataStore ?? throw new ArgumentNullException(nameof(metadataStore));
         }
 
-        public async Task AutoDiscoverEventsAsync(EventMessage eventMessage)
+        public async Task AutoDiscoverEventsAsync(ServerEventMessage eventMessage)
         {
             // Check to see if this instance already knows of the ObjectType
             if (topics != null && topics.Any(t => t.Equals(eventMessage.Topic, StringComparison.OrdinalIgnoreCase)))
@@ -32,7 +31,7 @@ namespace NCoreEventServer.Services
             }
         }
 
-        public async Task AutoDiscoverObjectsAsync(EventMessage eventMessage)
+        public async Task AutoDiscoverObjectsAsync(ServerEventMessage eventMessage)
         {
             // Check to see if this instance already knows of the ObjectType
             if (objectTypes != null && objectTypes.Any(t => t.Equals(eventMessage.ObjectType, StringComparison.OrdinalIgnoreCase)))

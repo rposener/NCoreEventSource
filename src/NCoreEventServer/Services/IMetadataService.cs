@@ -1,7 +1,4 @@
 ﻿using NCoreEventServer.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace NCoreEventServer.Services
@@ -13,13 +10,13 @@ namespace NCoreEventServer.Services
         /// </summary>
         /// <param name="eventMessage"></param>
         /// <returns></returns>
-        Task AutoDiscoverEventsAsync(EventMessage eventMessage);
+        Task AutoDiscoverEventsAsync(ServerEventMessage eventMessage);
 
         /// <summary>
         /// Auto-discovery of any MetaData
         /// </summary>
         /// <param name="eventMessage"></param>
         /// <returns></returns>
-        Task AutoDiscoverObjectsAsync(EventMessage eventMessage);
+        Task AutoDiscoverObjectsAsync(ServerEventMessage eventMessage);
     }
 }

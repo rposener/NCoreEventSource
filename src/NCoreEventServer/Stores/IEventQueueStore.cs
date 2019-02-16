@@ -1,7 +1,5 @@
 ﻿using NCoreEventServer.Models;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace NCoreEventServer.Stores
@@ -12,36 +10,36 @@ namespace NCoreEventServer.Stores
     public interface IEventQueueStore
     {
         /// <summary>
-        /// Adds a <seealso cref="EventMessage"/> to the LogStore
+        /// Adds a <seealso cref="ServerEventMessage"/> to the LogStore
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        Task<long> AddEventAsync(EventMessage message);
+        Task<long> AddEventAsync(ServerEventMessage message);
 
         /// <summary>
-        /// Reads the next <seealso cref="EventMessage"/>s from the LogStore
+        /// Reads the next <seealso cref="ServerEventMessage"/>s from the LogStore
         /// </summary>
         /// <param name="Max">Maximum number of events to Read</param>
         /// <returns></returns>
-        Task<IEnumerable<EventMessage>> NextEventsAsync(int Max);
+        Task<IEnumerable<ServerEventMessage>> NextEventsAsync(int Max);
 
         /// <summary>
-        /// Removes the <seealso cref="EventMessage"/> from the LogStore Once Processed
+        /// Removes the <seealso cref="ServerEventMessage"/> from the LogStore Once Processed
         /// </summary>
         /// <returns></returns>
         Task ClearEventAsync(long id);
 
         /// <summary>
-        /// Marks the <seealso cref="EventMessage"/> as Poisoned
+        /// Marks the <seealso cref="ServerEventMessage"/> as Poisoned
         /// </summary>
         /// <returns></returns>
         Task PoisonedEventAsync(long id);
 
         /// <summary>
-        /// Reads the Last <seealso cref="EventMessage"/>s that were Poison
+        /// Reads the Last <seealso cref="ServerEventMessage"/>s that were Poison
         /// </summary>
         /// <param name="Max">Maximum number of events to Read</param>
         /// <returns></returns>
-        Task<IEnumerable<EventMessage>> PoisonEventsAsync(int Max);
+        Task<IEnumerable<ServerEventMessage>> PoisonEventsAsync(int Max);
     }
 }

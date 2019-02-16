@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NCoreEventClient", "src\NCo
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{45E63502-43AE-49A3-BD2B-E3867EC9EE13}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCoreEventServerTests", "test\NCoreEventServerTests\NCoreEventServerTests.csproj", "{F3EAB510-DB59-424C-8338-D6E1AE2E18EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NCoreEventServerTests", "test\NCoreEventServerTests\NCoreEventServerTests.csproj", "{F3EAB510-DB59-424C-8338-D6E1AE2E18EB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCoreEvent", "src\NCoreEvent\NCoreEvent.csproj", "{952986EE-86DC-4B99-A412-D237AE189441}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,6 +45,10 @@ Global
 		{F3EAB510-DB59-424C-8338-D6E1AE2E18EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3EAB510-DB59-424C-8338-D6E1AE2E18EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F3EAB510-DB59-424C-8338-D6E1AE2E18EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{952986EE-86DC-4B99-A412-D237AE189441}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{952986EE-86DC-4B99-A412-D237AE189441}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{952986EE-86DC-4B99-A412-D237AE189441}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{952986EE-86DC-4B99-A412-D237AE189441}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

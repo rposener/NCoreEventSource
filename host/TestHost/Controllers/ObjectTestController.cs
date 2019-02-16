@@ -16,11 +16,11 @@ namespace TestHost.Controllers
     [ApiController]
     public class ObjectTestController : ControllerBase
     {
-        private readonly NCoreEventServerService eventServerService;
+        private readonly NCoreEventService eventServerService;
         private readonly ILogger<ObjectTestController> logger;
 
         public ObjectTestController(
-            NCoreEventServerService eventServerService,
+            NCoreEventService eventServerService,
             ILogger<ObjectTestController> logger
             )
         {

@@ -18,12 +18,12 @@ namespace TestHost.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
-        private readonly NCoreEventServerService eventServerService;
+        private readonly NCoreEventService eventServerService;
         private readonly ILogger<ValuesController> logger;
         static int Counter = 0;
         
 
-        public ValuesController(NCoreEventServerService eventServerService,
+        public ValuesController(NCoreEventService eventServerService,
             ILogger<ValuesController> logger)
         {
             this.eventServerService = eventServerService;

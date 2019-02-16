@@ -29,7 +29,7 @@ namespace NCoreEventServer.Services
         }
 
         /// <summary>
-        /// Injests a Request into a <seealso cref="EventMessage"/> and sends to the <seealso cref="IEventQueueStore"/>
+        /// Injests a Request into a <seealso cref="ServerEventMessage"/> and sends to the <seealso cref="IEventQueueStore"/>
         /// </summary>
         /// <param name="context"></param>
         /// <returns>Result from Injesting the Request</returns>
@@ -56,7 +56,7 @@ namespace NCoreEventServer.Services
                     logger.LogWarning("Request had an Empty Body");
                     return InjestionResult.Failure(HttpStatusCode.BadRequest, "Invalid Body");
                 }
-                var eventMessage = EventStoreSerialization.DeSerializeObject<EventMessage>(json);
+                var eventMessage = EventStoreSerialization.DeSerializeObject<ServerEventMessage>(json);
                 if (eventMessage == null)
                 {
                     logger.LogWarning("Request did not match expected format for Events.");

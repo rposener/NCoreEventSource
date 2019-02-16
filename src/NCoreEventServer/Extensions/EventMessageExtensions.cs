@@ -1,28 +1,26 @@
 ﻿using NCoreEventServer.Models;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NCoreEventServer
 {
-    public static class EventMessageExtensions
+    public static class ServerEventMessageExtensions
     {
         /// <summary>
-        /// Checks to See if the <seealso cref="EventMessage"/> contains an Event
+        /// Checks to See if the <seealso cref="ServerEventMessage"/> contains an Event
         /// </summary>
         /// <param name="eventMessage"></param>
         /// <returns></returns>
-        public static bool IsEventMessage(this EventMessage eventMessage)
+        public static bool IsServerEventMessage(this ServerEventMessage eventMessage)
         {
             return !String.IsNullOrWhiteSpace(eventMessage.Topic);
         }
 
         /// <summary>
-        /// Checks to See if the <seealso cref="EventMessage"/> contains an Object update
+        /// Checks to See if the <seealso cref="ServerEventMessage"/> contains an Object update
         /// </summary>
         /// <param name="eventMessage"></param>
         /// <returns></returns>
-        public static bool IsObjectMessage(this EventMessage eventMessage)
+        public static bool IsObjectMessage(this ServerEventMessage eventMessage)
         {
             return (!String.IsNullOrWhiteSpace(eventMessage.ObjectType) &&
                 !String.IsNullOrWhiteSpace(eventMessage.ObjectId) &&

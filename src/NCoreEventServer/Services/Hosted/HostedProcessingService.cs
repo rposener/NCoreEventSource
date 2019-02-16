@@ -16,7 +16,7 @@ namespace NCoreEventServer.Services
 {
     /// <summary>
     /// This service runs on background thread and calls the
-    /// <seealso cref="IEventProcessingService"/> and <seealso cref="IObjectUpdateService"/> for each <seealso cref="EventMessage"/>
+    /// <seealso cref="IEventProcessingService"/> and <seealso cref="IObjectUpdateService"/> for each <seealso cref="ServerEventMessage"/>
     /// in the <seealso cref="IEventQueueStore"/>.
     /// </summary>
     public class HostedProcessingService : BackgroundService
@@ -49,7 +49,7 @@ namespace NCoreEventServer.Services
         }
 
         /// <summary>
-        /// Continually injests <seealso cref="EventMessage"/> messages 
+        /// Continually injests <seealso cref="ServerEventMessage"/> messages 
         /// until <paramref name="stoppingToken"/> requests Stop
         /// starts instantly upon <seealso cref="TriggerService.ProcessingStart"/> reset 
         /// </summary>
@@ -77,7 +77,7 @@ namespace NCoreEventServer.Services
         }
 
         /// <summary>
-        /// Processes all Pending <seealso cref="EventMessage"/> messages 
+        /// Processes all Pending <seealso cref="ServerEventMessage"/> messages 
         /// in the <seealso cref="IEventQueueStore"/>
         /// </summary>
         /// <returns></returns>
@@ -91,7 +91,7 @@ namespace NCoreEventServer.Services
                 var processingService = scope.ServiceProvider.GetRequiredService<IEventProcessingService>();
                 var objectUpdateService = scope.ServiceProvider.GetRequiredService<IObjectUpdateService>();
 
-                IEnumerable<EventMessage> pendingEvents = await eventQueueStore.NextEventsAsync(options.Value.InjestionBatchSize);
+                IEnumerable<ServerEventMessage> pendingEvents = await eventQueueStore.NextEventsAsync(options.Value.InjestionBatchSize);
                 while (pendingEvents.Any((_) => { return true; }))
                 {
                     foreach (var pendingEvent in pendingEvents)
@@ -100,13 +100,13 @@ namespace NCoreEventServer.Services
                         {
                             logger.LogDebug($"Processing Event #{pendingEvent.LogId}");
                             // Start with Metadata updates
-                            if (options.Value.AutoDiscoverEvents && pendingEvent.IsEventMessage())
+                            if (options.Value.AutoDiscoverEvents && pendingEvent.IsServerEventMessage())
                                 await metadataService.AutoDiscoverEventsAsync(pendingEvent);
                             if (options.Value.AutoDiscoverObjectTypes && pendingEvent.IsObjectMessage())
                                 await metadataService.AutoDiscoverObjectsAsync(pendingEvent);
 
                             // Process the Event (if Topic is Set)
-                            if (pendingEvent.IsEventMessage())
+                            if (pendingEvent.IsServerEventMessage())
                                 await processingService.ProcessEvent(pendingEvent.Topic, pendingEvent.EventJson);
 
                             // Process the Object (if ObjectType is set)

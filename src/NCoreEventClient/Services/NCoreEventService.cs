@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using NCoreEvent;
 using NCoreEventClient.Models;
 using Newtonsoft.Json;
 using System;
@@ -13,15 +14,15 @@ using System.Threading.Tasks;
 
 namespace NCoreEventClient
 {
-    public class NCoreEventServerService
+    public class NCoreEventService
     {
         private readonly IOptions<NCoreEventOptions> options;
-        private readonly ILogger<NCoreEventServerService> logger;
+        private readonly ILogger<NCoreEventService> logger;
         private readonly HttpClient httpClient;
 
-        public NCoreEventServerService(
+        public NCoreEventService(
             IOptions<NCoreEventOptions> options,
-            ILogger<NCoreEventServerService> logger,
+            ILogger<NCoreEventService> logger,
             HttpClient httpClient)
         {
             this.options = options ?? throw new ArgumentNullException(nameof(options));
@@ -92,6 +93,10 @@ namespace NCoreEventClient
             logger.LogInformation("Message successfully Sent");
         }
 
+        /// <summary>
+        /// Validates an Event before Sending it
+        /// </summary>
+        /// <param name="message"></param>
         private void ValidateEvent(EventMessage message)
         {
             var validationIssues = message.Validate(new ValidationContext(message));

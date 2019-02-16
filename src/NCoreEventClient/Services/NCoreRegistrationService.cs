@@ -26,14 +26,14 @@ namespace NCoreEventClient.Services
         private readonly IOptions<NCoreEventOptions> options;
         private readonly IHostingEnvironment hostingEnvironment;
         private readonly IActionDescriptorCollectionProvider actionDescriptorCollectionProvider;
-        private readonly NCoreEventServerService eventServerService;
+        private readonly NCoreEventService eventServerService;
 
         public NCoreRegistrationService(
             ILogger<NCoreRegistrationService> logger,
             IOptions<NCoreEventOptions> options,
             IHostingEnvironment hostingEnvironment,
             IActionDescriptorCollectionProvider actionDescriptorCollectionProvider,
-            NCoreEventServerService eventServerService)
+            NCoreEventService eventServerService)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.options = options ?? throw new ArgumentNullException(nameof(options));
