@@ -38,6 +38,6 @@ namespace NCoreEventServer.Models
         /// <summary>
         /// Any Update for the Object
         /// </summary>
-        public JsonPatchDocument ObjectUpdate { get; set; }
+        public string ObjectUpdate { get; set; }
     }
 }

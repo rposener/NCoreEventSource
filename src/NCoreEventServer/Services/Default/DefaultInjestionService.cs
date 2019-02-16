@@ -18,16 +18,13 @@ namespace NCoreEventServer.Services
     public class DefaultInjestionService : IInjestionService
     {
         private readonly IEventQueueStore eventQueueStore;
-        private readonly TriggerService triggerService;
         private readonly ILogger<DefaultInjestionService> logger;
 
         public DefaultInjestionService(
             IEventQueueStore eventQueueStore, 
-            TriggerService triggerService, 
             ILogger<DefaultInjestionService> logger)
         {
             this.eventQueueStore = eventQueueStore ?? throw new ArgumentNullException(nameof(eventQueueStore));
-            this.triggerService = triggerService ?? throw new ArgumentNullException(nameof(triggerService));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -68,7 +65,7 @@ namespace NCoreEventServer.Services
 
                 // Store the Message and Trigger background processing
                 await eventQueueStore.AddEventAsync(eventMessage);
-                triggerService.ProcessingStart.Set();
+                TriggerService.ProcessingStart.Set();
 
                 // Return a Success to the Middleware
                 return InjestionResult.Success;

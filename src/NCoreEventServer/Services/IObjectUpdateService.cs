@@ -13,8 +13,8 @@ namespace NCoreEventServer.Services
         /// </summary>
         /// <param name="ObjectType"></param>
         /// <param name="ObjectId"></param>
-        /// <param name="patchDocument"></param>
+        /// <param name="jsonObject"></param>
         /// <returns></returns>
-        Task UpdateObject(string ObjectType, string ObjectId, JsonPatchDocument patchDocument);
+        Task UpdateObject(string ObjectType, string ObjectId, string jsonObject);
     }
 }

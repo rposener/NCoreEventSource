@@ -6,6 +6,7 @@ using NCoreEventServer.Configuration;
 using NCoreEventServer.Models;
 using NCoreEventServer.Stores;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,20 +20,31 @@ namespace NCoreEventServer.Services
     public class HostedDeliveryService : BackgroundService
     {
         private readonly IServiceProvider serviceProvider;
-        private readonly TriggerService triggerService;
         private readonly ILogger<HostedDeliveryService> logger;
         private readonly IOptions<EventServerOptions> options;
 
         public HostedDeliveryService(
             IServiceProvider serviceProvider,
-            TriggerService triggerService,
             ILogger<HostedDeliveryService> logger,
             IOptions<EventServerOptions> options)
         {
             this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-            this.triggerService = triggerService ?? throw new ArgumentNullException(nameof(triggerService));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.options = options ?? throw new ArgumentNullException(nameof(options));
+            logger.LogInformation(nameof(HostedDeliveryService) + " is created.");
+        }
+
+        
+        public override Task StartAsync(CancellationToken cancellationToken)
+        {
+            logger.LogInformation(nameof(HostedDeliveryService) + " has started.");
+            return base.StartAsync(cancellationToken);
+        }
+
+        public override Task StopAsync(CancellationToken cancellationToken)
+        {
+            logger.LogInformation(nameof(HostedDeliveryService) + " has stopped.");
+            return base.StopAsync(cancellationToken);
         }
 
         /// <summary>
@@ -41,15 +53,25 @@ namespace NCoreEventServer.Services
         /// </summary>
         /// <param name="stoppingToken"></param>
         /// <returns></returns>
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            while (!stoppingToken.IsCancellationRequested)
+            return Task.Factory.StartNew(async () =>
             {
-                logger.LogInformation("Starting Delivery!");
-                await DeliverAllMessagesInQueue();
-                logger.LogInformation("Delivery Caught up, Waiting for More Events");
-                triggerService.DeliveryStart.WaitOne(TimeSpan.FromSeconds(15), true);
-            }
+                try
+                {
+                    while (!stoppingToken.IsCancellationRequested)
+                    {
+                        logger.LogInformation("Starting Delivery!");
+                        await DeliverAllMessagesInQueue();
+                        logger.LogInformation("Delivery Caught up, Waiting for More Events");
+                        TriggerService.DeliveryStart.WaitOne(TimeSpan.FromSeconds(15), false);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, ex.Message);
+                }
+            });
         }
 
         /// <summary>
@@ -63,7 +85,11 @@ namespace NCoreEventServer.Services
                 var queueService = scope.ServiceProvider.GetRequiredService<ISubscriberQueueStore>();
 
                 var subscribersToSend = await queueService.SubscriberIdsWithPendingMessages();
-                await subscribersToSend.ForEachAsync(4, DeliverMessagesToSubscriber);
+
+                if (subscribersToSend != null && subscribersToSend.Any())
+                {
+                    await subscribersToSend.ForEachAsync(4, DeliverMessagesToSubscriber);
+                }
             }
         }
 

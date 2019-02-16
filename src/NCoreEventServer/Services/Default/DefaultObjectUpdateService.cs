@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.JsonPatch.Operations;
 using Microsoft.Extensions.Logging;
 using NCoreEventServer.Models;
 using NCoreEventServer.Stores;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -35,9 +37,9 @@ namespace NCoreEventServer.Services
         /// </summary>
         /// <param name="ObjectType"></param>
         /// <param name="ObjectId"></param>
-        /// <param name="patchDocument"></param>
+        /// <param name="jsonObject"></param>
         /// <returns></returns>
-        public async Task UpdateObject(string ObjectType, string ObjectId, JsonPatchDocument patchDocument)
+        public async Task UpdateObject(string ObjectType, string ObjectId, string jsonObject)
         {
             logger.LogDebug($"Processing ({ObjectType},{ObjectId})");
 
@@ -51,9 +53,14 @@ namespace NCoreEventServer.Services
 
             // Update the Object
             var existingObject = await objectStore.GetObjectAsync(ObjectType, ObjectId);
-            var jsonObject = EventStoreSerialization.DeSerializeObject(existingObject ?? "{}");
-            patchDocument.ApplyTo(jsonObject);
-            var newJson = EventStoreSerialization.SerializeObject(jsonObject);
+            var storedObject = EventStoreSerialization.DeSerializeObject(existingObject ?? "{}");
+            var updatedObject = EventStoreSerialization.DeSerializeObject(jsonObject);
+            storedObject["_id"] = ObjectId;
+            foreach(var update in updatedObject)
+            {
+                storedObject[update.Key] = update.Value;
+            }
+            var newJson = EventStoreSerialization.SerializeObject(storedObject);
             await objectStore.SetObjectAsync(ObjectType, ObjectId, newJson);
 
             // Check for Subscribers

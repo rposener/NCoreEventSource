@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.JsonPatch;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Text;
 
 namespace NCoreEventClient
@@ -8,7 +12,7 @@ namespace NCoreEventClient
     /// <summary>
     /// Inbound Message when an Event is Raised
     /// </summary>
-    public class EventMessage
+    public class EventMessage : IValidatableObject
     {
 
         /// <summary>
@@ -34,6 +38,41 @@ namespace NCoreEventClient
         /// <summary>
         /// Any Update for the Object
         /// </summary>
-        public JsonPatchDocument ObjectUpdate { get; set; }
+        public string ObjectUpdate { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (ObjectUpdate != null && !IsValidJson(ObjectUpdate))
+                yield return new ValidationResult("ObjectUpdate is not a valid Json Object", new[] { nameof(ObjectUpdate) });
+        }
+
+        private static bool IsValidJson(string strInput)
+        {
+            strInput = strInput.Trim();
+            if ((strInput.StartsWith("{") && strInput.EndsWith("}")) || //For object
+                (strInput.StartsWith("[") && strInput.EndsWith("]"))) //For array
+            {
+                try
+                {
+                    var obj = JToken.Parse(strInput);
+                    return true;
+                }
+                catch (JsonReaderException jex)
+                {
+                    //Exception in parsing json
+                    Debug.WriteLine(jex.Message);
+                    return false;
+                }
+                catch (Exception ex) //some other exception
+                {
+                    Debug.WriteLine(ex.ToString());
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }

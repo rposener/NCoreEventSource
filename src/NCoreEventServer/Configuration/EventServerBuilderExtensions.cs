@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using NCoreEventServer.Services;
 using NCoreEventServer.Stores;
 using Polly;
@@ -16,9 +17,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IEventServerBuilder AddCoreServices(this IEventServerBuilder builder)
         {
-            builder.Services.AddSingleton((_) => TriggerService.Instance);
-            builder.Services.AddHostedService<HostedDeliveryService>();
             builder.Services.AddHostedService<HostedProcessingService>();
+            builder.Services.AddHostedService<HostedDeliveryService>();
             return builder;
         }
 

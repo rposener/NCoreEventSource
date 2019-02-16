@@ -22,20 +22,30 @@ namespace NCoreEventServer.Services
     public class HostedProcessingService : BackgroundService
     {
         private readonly IServiceProvider serviceProvider;
-        private readonly TriggerService triggerService;
         private readonly ILogger<HostedProcessingService> logger;
         private readonly IOptions<EventServerOptions> options;
 
         public HostedProcessingService(
             IServiceProvider serviceProvider,
-            TriggerService triggerService, 
             ILogger<HostedProcessingService> logger,
             IOptions<EventServerOptions> options)
         {
             this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-            this.triggerService = triggerService ?? throw new ArgumentNullException(nameof(triggerService));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.options = options ?? throw new ArgumentNullException(nameof(options));
+            logger.LogInformation(nameof(HostedProcessingService) + " is created.");
+        }
+
+        public override Task StartAsync(CancellationToken cancellationToken)
+        {
+            logger.LogInformation(nameof(HostedProcessingService) + " has started.");
+            return base.StartAsync(cancellationToken);
+        }
+
+        public override Task StopAsync(CancellationToken cancellationToken)
+        {
+            logger.LogInformation(nameof(HostedProcessingService) + " has stopped.");
+            return base.StopAsync(cancellationToken);
         }
 
         /// <summary>
@@ -45,15 +55,25 @@ namespace NCoreEventServer.Services
         /// </summary>
         /// <param name="stoppingToken"></param>
         /// <returns></returns>
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            while (!stoppingToken.IsCancellationRequested)
+            return Task.Factory.StartNew(async () =>
             {
-                logger.LogInformation("Starting Injestion!");
-                await ProcessAllMessagesInQueue();
-                logger.LogInformation("Injestion Caught up, Waiting for More Events");
-                triggerService.ProcessingStart.WaitOne(TimeSpan.FromSeconds(15), true);
-            }
+                try
+                {
+                    while (!stoppingToken.IsCancellationRequested)
+                    {
+                        logger.LogInformation("Starting Injestion!");
+                        await ProcessAllMessagesInQueue();
+                        logger.LogInformation("Injestion Caught up, Waiting for More Events");
+                        TriggerService.ProcessingStart.WaitOne(TimeSpan.FromSeconds(15), false);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, ex.Message);
+                }
+            });
         }
 
         /// <summary>
@@ -102,9 +122,9 @@ namespace NCoreEventServer.Services
                         // Clear the Event as Processed
                         await eventQueueStore.ClearEventAsync(pendingEvent.LogId);
                     }
-                    
+
                     // Trigger Delivery
-                    triggerService.DeliveryStart.Set();
+                    TriggerService.DeliveryStart.Set();
 
                     // Keep checking for more Events
                     pendingEvents = await eventQueueStore.NextEventsAsync(options.Value.InjestionBatchSize);

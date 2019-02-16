@@ -34,7 +34,7 @@ namespace NCoreEventServer.Stores
 
         public Task<SubscriberMessage> NextMessageForAsync(string SubscriberId)
         {
-            var nextItem = store.Values.First();
+            var nextItem = store.Values.FirstOrDefault();
             return Task.FromResult(nextItem);
         }
 

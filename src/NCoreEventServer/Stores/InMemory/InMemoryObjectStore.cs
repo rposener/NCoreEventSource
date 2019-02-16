@@ -18,7 +18,10 @@ namespace NCoreEventServer.Stores
 
         public Task<string> GetObjectAsync(string ObjectType, string ObjectId)
         {
-            return Task.FromResult(objects[$"{ObjectType}.{ObjectId}"]);
+            var _key = $"{ObjectType}.{ObjectId}";
+            if (objects.ContainsKey(_key))
+                return Task.FromResult(objects[_key]);
+            return Task.FromResult((string)null);
         }
 
         public Task<IEnumerable<string>> GetObjectsAsync(string ObjectType)

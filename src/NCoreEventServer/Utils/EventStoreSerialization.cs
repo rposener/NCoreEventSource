@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,10 +12,12 @@ namespace NCoreEventServer
     public static class EventStoreSerialization
     {
         private static JsonSerializerSettings Settings;
+        private static JsonLoadSettings LoadSettings;
 
         static EventStoreSerialization()
         {
             Settings = new JsonSerializerSettings();
+            LoadSettings = new JsonLoadSettings();
         }
 
         public static T DeSerializeObject<T>(string json)
@@ -22,14 +25,14 @@ namespace NCoreEventServer
             return JsonConvert.DeserializeObject<T>(json, Settings);
         }
 
-        public static object DeSerializeObject(string json)
+        public static JObject DeSerializeObject(string json)
         {
-            return JsonConvert.DeserializeObject(json, Settings);
+            return JObject.Parse(json, LoadSettings);
         }
 
-        public static string SerializeObject(Object value)
+        public static string SerializeObject(JObject value)
         {
-            return JsonConvert.SerializeObject(value, Settings);
+            return value.ToString(Formatting.None);
         }
     }
 }
