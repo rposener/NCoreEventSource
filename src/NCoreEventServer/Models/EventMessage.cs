@@ -1,9 +1,4 @@
-﻿using Microsoft.AspNetCore.JsonPatch;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NCoreEventServer.Models
+﻿namespace NCoreEventServer.Models
 {
     /// <summary>
     /// Inbound Message when an Event is Raised

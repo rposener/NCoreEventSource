@@ -22,7 +22,14 @@ namespace NCoreEventServer
 
         public static T DeSerializeObject<T>(string json)
         {
-            return JsonConvert.DeserializeObject<T>(json, Settings);
+            try
+            {
+                return JsonConvert.DeserializeObject<T>(json, Settings);
+            }
+            catch(JsonException)
+            {
+                return default(T);
+            }
         }
 
         public static JObject DeSerializeObject(string json)
