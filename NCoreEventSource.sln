@@ -17,7 +17,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{45E63502
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NCoreEventServerTests", "test\NCoreEventServerTests\NCoreEventServerTests.csproj", "{F3EAB510-DB59-424C-8338-D6E1AE2E18EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCoreEvent", "src\NCoreEvent\NCoreEvent.csproj", "{952986EE-86DC-4B99-A412-D237AE189441}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NCoreEvent", "src\NCoreEvent\NCoreEvent.csproj", "{952986EE-86DC-4B99-A412-D237AE189441}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCoreEventServer.SqlStore", "src\NCoreEventServer.SqlStore\NCoreEventServer.SqlStore.csproj", "{70656775-57C4-48E4-B64A-F4D537F12C42}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,6 +51,10 @@ Global
 		{952986EE-86DC-4B99-A412-D237AE189441}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{952986EE-86DC-4B99-A412-D237AE189441}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{952986EE-86DC-4B99-A412-D237AE189441}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70656775-57C4-48E4-B64A-F4D537F12C42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70656775-57C4-48E4-B64A-F4D537F12C42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70656775-57C4-48E4-B64A-F4D537F12C42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70656775-57C4-48E4-B64A-F4D537F12C42}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
