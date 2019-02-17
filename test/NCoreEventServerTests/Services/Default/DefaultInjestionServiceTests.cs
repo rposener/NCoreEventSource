@@ -37,7 +37,7 @@ namespace NCoreEventServerTests.Services.Default
             context.Request.Method = method;
 
             // Test 
-            var service = new DefaultInjestionService(eventQueueStore, logger);
+            var service = new DefaultInjestionService(new TriggerService(), eventQueueStore, logger);
             var result = await service.InjestRequest(context);
 
             // Assert
@@ -57,7 +57,7 @@ namespace NCoreEventServerTests.Services.Default
             context.Request.ContentType = contentType;
 
             // Test 
-            var service = new DefaultInjestionService(eventQueueStore, logger);
+            var service = new DefaultInjestionService(new TriggerService(), eventQueueStore, logger);
             var result = await service.InjestRequest(context);
 
             // Assert
@@ -78,7 +78,7 @@ namespace NCoreEventServerTests.Services.Default
             context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
 
             // Test 
-            var service = new DefaultInjestionService(eventQueueStore, logger);
+            var service = new DefaultInjestionService(new TriggerService(), eventQueueStore, logger);
             var result = await service.InjestRequest(context);
 
             // Assert
@@ -99,7 +99,7 @@ namespace NCoreEventServerTests.Services.Default
             context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
 
             // Test 
-            var service = new DefaultInjestionService(eventQueueStore, logger);
+            var service = new DefaultInjestionService(new TriggerService(), eventQueueStore, logger);
             var result = await service.InjestRequest(context);
 
             // Assert

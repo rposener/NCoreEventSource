@@ -21,15 +21,18 @@ namespace NCoreEventServer.Services
     /// </summary>
     public class HostedProcessingService : BackgroundService
     {
+        private readonly TriggerService triggerService;
         private readonly IServiceProvider serviceProvider;
         private readonly ILogger<HostedProcessingService> logger;
         private readonly IOptions<EventServerOptions> options;
 
         public HostedProcessingService(
+            TriggerService triggerService,
             IServiceProvider serviceProvider,
             ILogger<HostedProcessingService> logger,
             IOptions<EventServerOptions> options)
         {
+            this.triggerService = triggerService ?? throw new ArgumentNullException(nameof(triggerService));
             this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.options = options ?? throw new ArgumentNullException(nameof(options));
@@ -66,7 +69,7 @@ namespace NCoreEventServer.Services
                         logger.LogInformation("Starting Injestion!");
                         await ProcessAllMessagesInQueue();
                         logger.LogInformation("Injestion Caught up, Waiting for More Events");
-                        TriggerService.ProcessingStart.WaitOne(TimeSpan.FromSeconds(15), true);
+                        triggerService.ProcessingStart.WaitOne(TimeSpan.FromSeconds(15), true);
                     }
                 }
                 catch (Exception ex)
@@ -81,7 +84,7 @@ namespace NCoreEventServer.Services
         /// in the <seealso cref="IEventQueueStore"/>
         /// </summary>
         /// <returns></returns>
-        private async Task ProcessAllMessagesInQueue()
+        public async Task ProcessAllMessagesInQueue()
         {
             using (var scope = serviceProvider.CreateScope())
             {
@@ -92,7 +95,7 @@ namespace NCoreEventServer.Services
                 var objectUpdateService = scope.ServiceProvider.GetRequiredService<IObjectUpdateService>();
 
                 IEnumerable<ServerEventMessage> pendingEvents = await eventQueueStore.NextEventsAsync(options.Value.InjestionBatchSize);
-                while (pendingEvents.Any((_) => { return true; }))
+                if (pendingEvents != null && pendingEvents.Any())
                 {
                     foreach (var pendingEvent in pendingEvents)
                     {
@@ -124,7 +127,7 @@ namespace NCoreEventServer.Services
                     }
 
                     // Trigger Delivery
-                    TriggerService.DeliveryStart.Set();
+                    triggerService.DeliveryStart.Set();
 
                     // Keep checking for more Events
                     pendingEvents = await eventQueueStore.NextEventsAsync(options.Value.InjestionBatchSize);

@@ -19,15 +19,18 @@ namespace NCoreEventServer.Services
     /// </summary>
     public class HostedDeliveryService : BackgroundService
     {
+        private readonly TriggerService triggerService;
         private readonly IServiceProvider serviceProvider;
         private readonly ILogger<HostedDeliveryService> logger;
         private readonly IOptions<EventServerOptions> options;
 
         public HostedDeliveryService(
+            TriggerService triggerService,
             IServiceProvider serviceProvider,
             ILogger<HostedDeliveryService> logger,
             IOptions<EventServerOptions> options)
         {
+            this.triggerService = triggerService ?? throw new ArgumentNullException(nameof(triggerService));
             this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.options = options ?? throw new ArgumentNullException(nameof(options));
@@ -64,7 +67,7 @@ namespace NCoreEventServer.Services
                         logger.LogInformation("Starting Delivery!");
                         await DeliverAllMessagesInQueue();
                         logger.LogInformation("Delivery Caught up, Waiting for More Events");
-                        TriggerService.DeliveryStart.WaitOne(TimeSpan.FromSeconds(15), true);
+                        triggerService.DeliveryStart.WaitOne(TimeSpan.FromSeconds(15), true);
                     }
                 }
                 catch (Exception ex)

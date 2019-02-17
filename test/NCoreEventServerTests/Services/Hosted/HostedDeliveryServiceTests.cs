@@ -20,8 +20,6 @@ namespace NCoreEventServerTests.Services.Hosted
     public class HostedDeliveryServiceTests
     {
         private ISubscriberQueueStore subscriberQueueStore;
-        private IServiceScopeFactory serviceScopeFactory;
-        private IServiceScope serviceScope;
         private IDeliveryService deliveryService;
         private IServiceProvider serviceProvider;
         private ISubscriberStore subscriberStore;
@@ -32,20 +30,18 @@ namespace NCoreEventServerTests.Services.Hosted
         public void Setup_Mocks()
         {
             subscriberQueueStore = Mock.Of<ISubscriberQueueStore>();
-            serviceScopeFactory = Mock.Of<IServiceScopeFactory>();
-            serviceScope = Mock.Of<IServiceScope>();
             subscriberStore = Mock.Of<ISubscriberStore>();
             serviceProvider = Mock.Of<IServiceProvider>();
             logger = Mock.Of<ILogger<HostedDeliveryService>>();
             options = Options.Create(new EventServerOptions());
             deliveryService = Mock.Of<IDeliveryService>();
+            SetupScopeMock();
         }
 
         [TestMethod]
         public async Task Delivery_On_DeliveryStart()
         {
             // Setup
-            SetupScopeMock();
             Mock.Get(serviceProvider)
                 .Setup(p => p.GetService(It.Is<Type>(v => v == typeof(ISubscriberQueueStore))))
                 .Returns(subscriberQueueStore);
@@ -54,7 +50,7 @@ namespace NCoreEventServerTests.Services.Hosted
                 .ReturnsAsync(new string[0]);
 
             // Test
-            var service = new HostedDeliveryService(serviceProvider, logger, options);
+            var service = new HostedDeliveryService(new TriggerService(), serviceProvider, logger, options);
             var tokenSource = new CancellationTokenSource();
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             service.StartAsync(tokenSource.Token);
@@ -123,7 +119,7 @@ namespace NCoreEventServerTests.Services.Hosted
                 .Verifiable();
 
             // Test
-            var service = new HostedDeliveryService(serviceProvider, logger, options);
+            var service = new HostedDeliveryService(new TriggerService(), serviceProvider, logger, options);
             var tokenSource = new CancellationTokenSource();
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             service.StartAsync(tokenSource.Token);
@@ -138,13 +134,15 @@ namespace NCoreEventServerTests.Services.Hosted
 
         private void SetupScopeMock()
         {
+            var factory = Mock.Of<IServiceScopeFactory>();
             Mock.Get(serviceProvider)
-                .Setup(p => p.GetService(It.Is<Type>(v => v == typeof(IServiceScopeFactory))))
-                .Returns(serviceScopeFactory);
-            Mock.Get(serviceScopeFactory)
+                .Setup(s => s.GetService(It.Is<Type>(v => v == typeof(IServiceScopeFactory))))
+                .Returns(factory);
+            var scope = Mock.Of<IServiceScope>();
+            Mock.Get(factory)
                 .Setup(f => f.CreateScope())
-                .Returns(serviceScope);
-            Mock.Get(serviceScope)
+                .Returns(scope);
+            Mock.Get(scope)
                 .SetupGet(s => s.ServiceProvider)
                 .Returns(serviceProvider);
         }

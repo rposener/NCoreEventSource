@@ -10,11 +10,16 @@ namespace NCoreEventServer.Configuration
     /// </summary>
     public class EventServerOptions
     {
+        const int MIN_SIZE = 1;
+        const int MAX_SIZE = 265;
+
+        int injestionBatchSize;
+
         public EventServerOptions()
         {
             AutoDiscoverEvents = true;
             AutoDiscoverObjectTypes = true;
-            InjestionBatchSize = 8;
+            injestionBatchSize = 8;
             InjestionPath = "/eventserver/injest";
             RegistationPath = "/eventserver/register";
         }
@@ -32,7 +37,16 @@ namespace NCoreEventServer.Configuration
         /// <summary>
         /// Number of Items the InjestionService Processes at a time
         /// </summary>
-        public int InjestionBatchSize { get; set; }
+        public int InjestionBatchSize
+        {
+            get { return injestionBatchSize; }
+            set
+            {
+                if (value < MIN_SIZE || value > MAX_SIZE)
+                    throw new ArgumentOutOfRangeException(nameof(InjestionBatchSize), $"Injestion Batch should be between {MIN_SIZE} and {MAX_SIZE}");
+                injestionBatchSize = value;
+            }
+        }
 
         /// <summary>
         /// Base EventServer Url

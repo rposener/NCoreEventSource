@@ -5,16 +5,16 @@ using System.Threading;
 
 namespace NCoreEventServer.Services
 {
-    public static class TriggerService
+    public class TriggerService
     {
-        public static AutoResetEvent ProcessingStart { get; set; }
+        public AutoResetEvent ProcessingStart { get; set; }
 
-        public static AutoResetEvent DeliveryStart { get; set; }
+        public AutoResetEvent DeliveryStart { get; set; }
 
         /// <summary>
         /// Private Cosntructor for Singleton Pattern
         /// </summary>
-        static TriggerService()
+        public TriggerService()
         {
             ProcessingStart = new AutoResetEvent(true);
             DeliveryStart = new AutoResetEvent(true);
