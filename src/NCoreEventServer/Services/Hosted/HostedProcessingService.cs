@@ -58,25 +58,22 @@ namespace NCoreEventServer.Services
         /// </summary>
         /// <param name="stoppingToken"></param>
         /// <returns></returns>
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            return Task.Factory.StartNew(async () =>
+            try
             {
-                try
+                while (!stoppingToken.IsCancellationRequested)
                 {
-                    while (!stoppingToken.IsCancellationRequested)
-                    {
-                        logger.LogInformation("Starting Injestion!");
-                        await ProcessAllMessagesInQueue();
-                        logger.LogInformation("Injestion Caught up, Waiting for More Events");
-                        triggerService.ProcessingStart.WaitOne(TimeSpan.FromSeconds(15), true);
-                    }
+                    logger.LogInformation("Starting Injestion!");
+                    await ProcessAllMessagesInQueue();
+                    logger.LogInformation("Injestion Caught up, Waiting for More Events");
+                    await triggerService.ProcessingStart.WaitOneAsync(TimeSpan.FromSeconds(15));
                 }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, ex.Message);
-                }
-            });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
+            }
         }
 
         /// <summary>

@@ -56,25 +56,22 @@ namespace NCoreEventServer.Services
         /// </summary>
         /// <param name="stoppingToken"></param>
         /// <returns></returns>
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            return Task.Factory.StartNew(async () =>
+            try
             {
-                try
+                while (!stoppingToken.IsCancellationRequested)
                 {
-                    while (!stoppingToken.IsCancellationRequested)
-                    {
-                        logger.LogInformation("Starting Delivery!");
-                        await DeliverAllMessagesInQueue();
-                        logger.LogInformation("Delivery Caught up, Waiting for More Events");
-                        triggerService.DeliveryStart.WaitOne(TimeSpan.FromSeconds(15), true);
-                    }
+                    logger.LogInformation("Starting Delivery!");
+                    await DeliverAllMessagesInQueue();
+                    logger.LogInformation("Delivery Caught up, Waiting for More Events");
+                    await triggerService.DeliveryStart.WaitOneAsync(TimeSpan.FromSeconds(15));
                 }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, ex.Message);
-                }
-            });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
+            }
         }
 
         /// <summary>
