@@ -8,13 +8,11 @@ namespace NCoreEventServer.SqlStore
 
         public EventServerContext()
         {
-
         }
 
         public EventServerContext(DbContextOptions dbContextOptions)
             :base(dbContextOptions)
         {
-
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -25,7 +23,11 @@ namespace NCoreEventServer.SqlStore
 
         public DbSet<ServerEventMessageEntity> EventMessages { get; set; }
 
+        public DbSet<PoisonEventMessageEntity> PoisonMessages { get; set; }
+
         public DbSet<ObjectMetadataEntity> ObjectMetadata { get; set; }
+
+        public DbSet<ObjectEntity> ObjectEntities { get; set; }
 
         public DbSet<SubscriberEntity> Subscribers { get; set; }
 

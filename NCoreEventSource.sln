@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NCoreEventServerTests", "te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NCoreEvent", "src\NCoreEvent\NCoreEvent.csproj", "{952986EE-86DC-4B99-A412-D237AE189441}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCoreEventServer.SqlStore", "src\NCoreEventServer.SqlStore\NCoreEventServer.SqlStore.csproj", "{70656775-57C4-48E4-B64A-F4D537F12C42}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NCoreEventServer.SqlStore", "src\NCoreEventServer.SqlStore\NCoreEventServer.SqlStore.csproj", "{70656775-57C4-48E4-B64A-F4D537F12C42}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCoreEventServer.SqlStore.Tests", "test\NCoreEventServer.SqlStore.Tests\NCoreEventServer.SqlStore.Tests.csproj", "{6FE9DDD2-D217-42FC-957B-52ECABA98AF3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +57,10 @@ Global
 		{70656775-57C4-48E4-B64A-F4D537F12C42}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70656775-57C4-48E4-B64A-F4D537F12C42}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70656775-57C4-48E4-B64A-F4D537F12C42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FE9DDD2-D217-42FC-957B-52ECABA98AF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FE9DDD2-D217-42FC-957B-52ECABA98AF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FE9DDD2-D217-42FC-957B-52ECABA98AF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FE9DDD2-D217-42FC-957B-52ECABA98AF3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -63,6 +69,7 @@ Global
 		{6D28BA6C-34FA-4395-A7CD-F90DF07BDF07} = {1674D169-2706-456C-94BB-1543437A97F1}
 		{B798E56E-C1A4-4D9A-BE34-E8B2D99EBA21} = {1674D169-2706-456C-94BB-1543437A97F1}
 		{F3EAB510-DB59-424C-8338-D6E1AE2E18EB} = {45E63502-43AE-49A3-BD2B-E3867EC9EE13}
+		{6FE9DDD2-D217-42FC-957B-52ECABA98AF3} = {45E63502-43AE-49A3-BD2B-E3867EC9EE13}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8503AAC5-D8E3-4544-875A-CF6FD2F77B96}
