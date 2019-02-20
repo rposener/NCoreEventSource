@@ -25,12 +25,12 @@ In addition it has just 3 back-end services (Email Delivery, Billing, and Accoun
 Consider these alternatives:
 
 ## Point-to-Point
-![Point to Point](./Point2Point.png)
+![Point to Point](https://raw.githubusercontent.com/rposener/NCoreEventSource/master/Point2Point.PNG)
 
 Many interconnections, complexity and distributed coordination.  Many opportunities to create tight-coupling and introduce cascading failures.
 
 ##  NCore Event Sourced
-![NCore Event System](./NCoreEvent.png)
+![NCore Event System](https://raw.githubusercontent.com/rposener/NCoreEventSource/master/NCoreEvent.png)
 
 Event-driven, shared-objects, and recovers from outages via event catch-up.
 
