@@ -30,7 +30,7 @@ Consider these alternatives:
 Many interconnections, complexity and distributed coordination.  Many opportunities to create tight-coupling and introduce cascading failures.
 
 ##  NCore Event Sourced
-![NCore Event System](https://raw.githubusercontent.com/rposener/NCoreEventSource/master/NCoreEvent.png)
+![NCore Event System](https://raw.githubusercontent.com/rposener/NCoreEventSource/master/NCoreEvent.PNG)
 
 Event-driven, shared-objects, and recovers from outages via event catch-up.
 
