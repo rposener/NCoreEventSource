@@ -12,7 +12,7 @@ _Anyone who is using a Micro-service based approach to a project._
 
 What this project isn't:
 1. A solution for massive-scale (e.g. Netflix) - hey it's still v 0.1
-1. A solution to implement [CQRS](https://microservices.io/patterns/data/cqrs.html) (don't do it)
+1. A solution to implement [CQRS](https://microservices.io/patterns/data/cqrs.html) - this is not intending to solve that
 
 # Example Scenario
 Imagine you are building a set of micrservices to divide what was typically a monolithic application.
