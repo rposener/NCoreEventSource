@@ -7,12 +7,17 @@ What this project is:
 1. A de-coupled eventing pattern
 1. A simple object-sharing pattern for micro-service [database-per-service](https://microservices.io/patterns/data/database-per-service.html) pattern
 
-Who may beenfit from this?
+What does this solve?
+1. The need to trigger events between services to coordinate work.
+1. The need to share common objects from one service to another (e.g. Customer that is fed by Customer service, allowing others 
+like Invoice and Rewards services to maintain their own version of the Customer record).
+
+Who may benefit from this?
 _Anyone who is using a Micro-service based approach to a project._
 
 What this project isn't:
 1. A solution for massive-scale (e.g. Netflix) - hey it's still v 0.1
-1. A solution to implement [CQRS](https://microservices.io/patterns/data/cqrs.html) (don't do it)
+1. A solution to implement [CQRS](https://microservices.io/patterns/data/cqrs.html) - this is not intending to solve that
 
 # Example Scenario
 Imagine you are building a set of micrservices to divide what was typically a monolithic application.
@@ -25,12 +30,12 @@ In addition it has just 3 back-end services (Email Delivery, Billing, and Accoun
 Consider these alternatives:
 
 ## Point-to-Point
-![Point-to-Point](./Point2Point.png)
+![Point to Point](https://raw.githubusercontent.com/rposener/NCoreEventSource/master/Point2Point.PNG)
 
 Many interconnections, complexity and distributed coordination.  Many opportunities to create tight-coupling and introduce cascading failures.
 
 ##  NCore Event Sourced
-![NCore-Event-System](./NCoreEvent.png)
+![NCore Event System](https://raw.githubusercontent.com/rposener/NCoreEventSource/master/NCoreEvent.PNG)
 
 Event-driven, shared-objects, and recovers from outages via event catch-up.
 
