@@ -7,7 +7,12 @@ What this project is:
 1. A de-coupled eventing pattern
 1. A simple object-sharing pattern for micro-service [database-per-service](https://microservices.io/patterns/data/database-per-service.html) pattern
 
-Who may beenfit from this?
+What does this solve?
+1. The need to trigger events between services to coordinate work.
+1. The need to share common objects from one service to another (e.g. Customer that is fed by Customer service, allowing others 
+like Invoice and Rewards services to maintain their own version of the Customer record).
+
+Who may benefit from this?
 _Anyone who is using a Micro-service based approach to a project._
 
 What this project isn't:
