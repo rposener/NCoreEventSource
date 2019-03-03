@@ -19,23 +19,22 @@ namespace NCoreEventServer.Stores
             poison = new ConcurrentDictionary<long, ServerEventMessage>();
         }
 
-        public Task<long> AddEventAsync(ServerEventMessage message)
+        public Task<long> EnqueueEventAsync(ServerEventMessage message)
         {
             message.LogId = nextId++;
             store.TryAdd(message.LogId, message);
             return Task.FromResult(message.LogId);
         }
 
-        public Task ClearEventAsync(long id)
+        public Task DequeueEventAsync(long id)
         {
             store.TryRemove(id,out _);
             return Task.CompletedTask;
         }
 
-        public Task<IEnumerable<ServerEventMessage>> NextEventsAsync(int Max)
+        public Task<ServerEventMessage> PeekEventAsync()
         {
-            var nextItems = store.Values.Take(Max).ToArray();
-            return Task.FromResult(nextItems.AsEnumerable());
+            return Task.FromResult(store.Values.FirstOrDefault());
         }
 
         public Task PoisonedEventAsync(long id)

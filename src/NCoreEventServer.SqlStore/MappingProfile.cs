@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace NCoreEventServer.SqlStore.MapProfiles
+namespace NCoreEventServer.SqlStore
 {
     public class MappingProfile : Profile
     {
@@ -32,7 +32,9 @@ namespace NCoreEventServer.SqlStore.MapProfiles
             CreateMap<PoisonEventMessageEntity, ServerEventMessageEntity>();
             CreateMap<ServerEventMessageEntity, PoisonEventMessageEntity>();
 
-            CreateMap<SubscriberMessage, SubscriberMessageEntity>();
+            CreateMap<SubscriberMessage, SubscriberMessageEntity>()
+                .ForMember(dest => dest.Subscriber, opt => opt.Ignore());
+
             CreateMap<SubscriberMessageEntity, SubscriberMessage>();
         }
     }

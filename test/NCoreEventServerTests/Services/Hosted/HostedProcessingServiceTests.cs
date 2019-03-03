@@ -9,6 +9,7 @@ using NCoreEventServer.Services;
 using NCoreEventServer.Stores;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -57,13 +58,10 @@ namespace NCoreEventServerTests.Services.Hosted
         public async Task ProcessAllMessagesInQueue_TriggersDelivery()
         {
             // Setup
-            List<ServerEventMessage> eventsToReturn = new List<ServerEventMessage> {
-                new ServerEventMessage {}   // Blank Event (should trigger no processing
-            };
             Mock.Get(eventQueueStore)
-                .SetupSequence(s => s.NextEventsAsync(It.IsAny<int>()))
-                .ReturnsAsync(eventsToReturn.ToArray())
-                .ReturnsAsync(new ServerEventMessage[0]);
+                .SetupSequence(s => s.PeekEventAsync())
+                .ReturnsAsync(new ServerEventMessage { })
+                .ReturnsAsync(null);
 
             var triggerService = new TriggerService();
             bool DeliverySet = false;
@@ -78,7 +76,6 @@ namespace NCoreEventServerTests.Services.Hosted
             var options = Options.Create(new EventServerOptions());
             var service = new HostedProcessingService(new TriggerService(), serviceProvider, logger, options);
             await service.ProcessAllMessagesInQueue();
-            eventsToReturn.Clear();
 
             // Assert
             Mock.Get(eventQueueStore).Verify();
@@ -94,13 +91,10 @@ namespace NCoreEventServerTests.Services.Hosted
         public async Task ProcessAllMessagesInQueue_Exceptions_PoisonMessage()
         {
             // Setup
-            List<ServerEventMessage> eventsToReturn = new List<ServerEventMessage> {
-                new ServerEventMessage { LogId=53232L, Topic = "TopicA", EventJson="{Event-Data-Here}"}   // Blank Event (should trigger no processing
-            };
             Mock.Get(eventQueueStore)
-                .SetupSequence(s => s.NextEventsAsync(It.IsAny<int>()))
-                .ReturnsAsync(eventsToReturn.ToArray())
-                .ReturnsAsync(new ServerEventMessage[0]);
+                .SetupSequence(s => s.PeekEventAsync())
+                .ReturnsAsync(new ServerEventMessage { LogId = 53232L, Topic = "TopicA", EventJson = "{Event-Data-Here}" })
+                .ReturnsAsync(null);
 
             Mock.Get(eventQueueStore)
                 .Setup(s => s.PoisonedEventAsync(It.Is<long>(v => v == 53232L)))
@@ -116,7 +110,6 @@ namespace NCoreEventServerTests.Services.Hosted
             var options = Options.Create(new EventServerOptions { AutoDiscoverEvents = false, AutoDiscoverObjectTypes = false });
             var service = new HostedProcessingService(new TriggerService(), serviceProvider, logger, options);
             await service.ProcessAllMessagesInQueue();
-            eventsToReturn.Clear();
 
             // Assert
             Mock.Get(eventQueueStore).Verify();
@@ -132,16 +125,13 @@ namespace NCoreEventServerTests.Services.Hosted
         public async Task ProcessAllMessagesInQueue_EventMessage_OnlySends()
         {
             // Setup
-            List<ServerEventMessage> eventsToReturn = new List<ServerEventMessage> {
-                new ServerEventMessage { LogId=53232L, Topic = "TopicA", EventJson="{Event-Data-Here}"}   // Blank Event (should trigger no processing
-            };
             Mock.Get(eventQueueStore)
-                .SetupSequence(s => s.NextEventsAsync(It.IsAny<int>()))
-                .ReturnsAsync(eventsToReturn.ToArray())
-                .ReturnsAsync(new ServerEventMessage[0]);
+                .SetupSequence(s => s.PeekEventAsync())
+                .ReturnsAsync(new ServerEventMessage { LogId = 53232L, Topic = "TopicA", EventJson = "{Event-Data-Here}" })
+                .ReturnsAsync(null);
 
             Mock.Get(eventQueueStore)
-                .Setup(s => s.ClearEventAsync(It.Is<long>(v => v == 53232L)))
+                .Setup(s => s.DequeueEventAsync(It.Is<long>(v => v == 53232L)))
                 .Returns(Task.CompletedTask)
                 .Verifiable();
 
@@ -154,7 +144,6 @@ namespace NCoreEventServerTests.Services.Hosted
             var options = Options.Create(new EventServerOptions { AutoDiscoverEvents = false, AutoDiscoverObjectTypes = false });
             var service = new HostedProcessingService(new TriggerService(), serviceProvider, logger, options);
             await service.ProcessAllMessagesInQueue();
-            eventsToReturn.Clear();
 
             // Assert
             Mock.Get(eventQueueStore).Verify();
@@ -170,16 +159,13 @@ namespace NCoreEventServerTests.Services.Hosted
         public async Task ProcessAllMessagesInQueue_ObjectMessage_OnlySends()
         {
             // Setup
-            List<ServerEventMessage> eventsToReturn = new List<ServerEventMessage> {
-                new ServerEventMessage { LogId=53232L, ObjectType="ObjectTypeA", ObjectId="235", ObjectUpdate="{Object-Data}"}   // Blank Event (should trigger no processing
-            };
             Mock.Get(eventQueueStore)
-                .SetupSequence(s => s.NextEventsAsync(It.IsAny<int>()))
-                .ReturnsAsync(eventsToReturn.ToArray())
-                .ReturnsAsync(new ServerEventMessage[0]);
+                .SetupSequence(s => s.PeekEventAsync())
+                .ReturnsAsync(new ServerEventMessage { LogId = 53232L, ObjectType = "ObjectTypeA", ObjectId = "235", ObjectUpdate = "{Object-Data}" })
+                .ReturnsAsync(null);
 
             Mock.Get(eventQueueStore)
-                .Setup(s => s.ClearEventAsync(It.Is<long>(v => v == 53232L)))
+                .Setup(s => s.DequeueEventAsync(It.Is<long>(v => v == 53232L)))
                 .Returns(Task.CompletedTask)
                 .Verifiable();
 
@@ -192,7 +178,6 @@ namespace NCoreEventServerTests.Services.Hosted
             var options = Options.Create(new EventServerOptions { AutoDiscoverEvents = false, AutoDiscoverObjectTypes = false });
             var service = new HostedProcessingService(new TriggerService(), serviceProvider, logger, options);
             await service.ProcessAllMessagesInQueue();
-            eventsToReturn.Clear();
 
             // Assert
             Mock.Get(eventQueueStore).Verify();
@@ -208,16 +193,13 @@ namespace NCoreEventServerTests.Services.Hosted
         public async Task ProcessAllMessagesInQueue_EventMessage_WithAutoDiscovery()
         {
             // Setup
-            List<ServerEventMessage> eventsToReturn = new List<ServerEventMessage> {
-                new ServerEventMessage { LogId=53232L, Topic = "TopicA", EventJson="{Event-Data-Here}"}   // Blank Event (should trigger no processing
-            };
             Mock.Get(eventQueueStore)
-                .SetupSequence(s => s.NextEventsAsync(It.IsAny<int>()))
-                .ReturnsAsync(eventsToReturn.ToArray())
-                .ReturnsAsync(new ServerEventMessage[0]);
+                .SetupSequence(s => s.PeekEventAsync())
+                .ReturnsAsync(new ServerEventMessage { LogId = 53232L, Topic = "TopicA", EventJson = "{Event-Data-Here}" })
+                .ReturnsAsync(null);
 
             Mock.Get(eventQueueStore)
-                .Setup(s => s.ClearEventAsync(It.Is<long>(v => v == 53232L)))
+                .Setup(s => s.DequeueEventAsync(It.Is<long>(v => v == 53232L)))
                 .Returns(Task.CompletedTask)
                 .Verifiable();
 
@@ -234,7 +216,6 @@ namespace NCoreEventServerTests.Services.Hosted
             var options = Options.Create(new EventServerOptions { AutoDiscoverEvents = true, AutoDiscoverObjectTypes = false });
             var service = new HostedProcessingService(new TriggerService(), serviceProvider, logger, options);
             await service.ProcessAllMessagesInQueue();
-            eventsToReturn.Clear();
 
             // Assert
             Mock.Get(eventQueueStore).Verify();
@@ -251,16 +232,13 @@ namespace NCoreEventServerTests.Services.Hosted
         public async Task ProcessAllMessagesInQueue_ObjectMessage_WithAutoDiscovery()
         {
             // Setup
-            List<ServerEventMessage> eventsToReturn = new List<ServerEventMessage> {
-                new ServerEventMessage { LogId=53232L, ObjectType="ObjectTypeA", ObjectId="235", ObjectUpdate="{Object-Data}"}   // Blank Event (should trigger no processing
-            };
             Mock.Get(eventQueueStore)
-                .SetupSequence(s => s.NextEventsAsync(It.IsAny<int>()))
-                .ReturnsAsync(eventsToReturn.ToArray())
-                .ReturnsAsync(new ServerEventMessage[0]);
+                .SetupSequence(s => s.PeekEventAsync())
+                .ReturnsAsync(new ServerEventMessage { LogId = 53232L, ObjectType = "ObjectTypeA", ObjectId = "235", ObjectUpdate = "{Object-Data}" })
+                .ReturnsAsync(null);
 
             Mock.Get(eventQueueStore)
-                .Setup(s => s.ClearEventAsync(It.Is<long>(v => v == 53232L)))
+                .Setup(s => s.DequeueEventAsync(It.Is<long>(v => v == 53232L)))
                 .Returns(Task.CompletedTask)
                 .Verifiable();
 
@@ -277,7 +255,6 @@ namespace NCoreEventServerTests.Services.Hosted
             var options = Options.Create(new EventServerOptions { AutoDiscoverEvents = false, AutoDiscoverObjectTypes = true });
             var service = new HostedProcessingService(new TriggerService(), serviceProvider, logger, options);
             await service.ProcessAllMessagesInQueue();
-            eventsToReturn.Clear();
 
             // Assert
             Mock.Get(eventQueueStore).Verify();

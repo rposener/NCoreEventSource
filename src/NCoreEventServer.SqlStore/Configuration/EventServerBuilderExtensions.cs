@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using NCoreEventServer.SqlStore;
 using NCoreEventServer.SqlStore.Stores;
 using NCoreEventServer.Stores;
@@ -11,6 +12,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 
         public static IEventServerBuilder AddSqlServerStores(this IEventServerBuilder builder, Action<DbContextOptionsBuilder> configureDb)
         {
+            builder.Services.AddAutoMapper(config =>
+            {
+                config.AddProfile<MappingProfile>();
+            });
             builder.Services.AddDbContextPool<EventServerContext>(configureDb);
             builder.Services.AddScoped<IEventQueueStore, SqlEventQueueStore>();
             builder.Services.AddScoped<IMetadataStore, SqlMetadataStore>();

@@ -19,7 +19,7 @@ namespace NCoreEventServer.Stores
             store = new ConcurrentDictionary<long, SubscriberMessage>();
         }
 
-        public Task AddSubscriberMessageAsync(SubscriberMessage message)
+        public Task EnqueueMessageAsync(SubscriberMessage message)
         {
             message.MessageId = nextId++;
             store.TryAdd(message.MessageId, message);
@@ -32,7 +32,7 @@ namespace NCoreEventServer.Stores
             return Task.CompletedTask;
         }
 
-        public Task<SubscriberMessage> NextMessageForAsync(string SubscriberId)
+        public Task<SubscriberMessage> PeekMessageAsync(string SubscriberId)
         {
             var nextItem = store.Values.FirstOrDefault();
             return Task.FromResult(nextItem);

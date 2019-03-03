@@ -28,7 +28,7 @@ namespace NCoreEventServer.SqlStore.Stores
             this.context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task AddSubscriberMessageAsync(SubscriberMessage message)
+        public async Task EnqueueMessageAsync(SubscriberMessage message)
         {
             logger.LogInformation("Adding Message To Queue");
             var entity = mapper.Map<SubscriberMessageEntity>(message);
@@ -43,7 +43,7 @@ namespace NCoreEventServer.SqlStore.Stores
             await context.SaveChangesAsync();
         }
 
-        public async Task<SubscriberMessage> NextMessageForAsync(string SubscriberId)
+        public async Task<SubscriberMessage> PeekMessageAsync(string SubscriberId)
         {
             logger.LogInformation("Getting Next Message from Queue for Subscriber");
             var entity = await context.SubscriberMessages.Where(m => m.SubscriberId == SubscriberId).FirstOrDefaultAsync();

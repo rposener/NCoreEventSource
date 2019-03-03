@@ -67,7 +67,7 @@ namespace NCoreEventServer.Services
                 }
 
                 // Store the Message and Trigger background processing
-                await eventQueueStore.AddEventAsync(eventMessage);
+                await eventQueueStore.EnqueueEventAsync(eventMessage);
                 triggerService.ProcessingStart.Set();
 
                 // Return a Success to the Middleware

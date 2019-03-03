@@ -11,7 +11,7 @@ namespace NCoreEventServer.SqlStore.Configuration
     {
         public void Configure(EntityTypeBuilder<TopicMetadataEntity> builder)
         {
-            builder.HasAlternateKey(t => t.Topic);
+            builder.HasKey(t => t.Topic);
         }
     }
 }

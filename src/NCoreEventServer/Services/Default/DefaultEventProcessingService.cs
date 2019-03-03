@@ -55,7 +55,7 @@ namespace NCoreEventServer.Services
             // Create Messages to Notify all Subscribers
             foreach (var subscriptionDetail in subscriptionDetails)
             {
-                await subscriberQueueStore.AddSubscriberMessageAsync(new SubscriberMessage
+                await subscriberQueueStore.EnqueueMessageAsync(new SubscriberMessage
                 {
                     DestinationUri = new Uri(subscriptionDetail.BaseUri, subscriptionDetail.RelativePath),
                     SubscriberId = subscriptionDetail.SubscriberId,

@@ -17,14 +17,14 @@ namespace NCoreEventServer.Stores
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        Task AddSubscriberMessageAsync(SubscriberMessage message);
+        Task EnqueueMessageAsync(SubscriberMessage message);
 
         /// <summary>
         /// Gets the next message destined for a certain subscriber
         /// </summary>
         /// <param name="SubscriberId"></param>
         /// <returns></returns>
-        Task<SubscriberMessage> NextMessageForAsync(string SubscriberId);
+        Task<SubscriberMessage> PeekMessageAsync(string SubscriberId);
 
         /// <summary>
         /// Clears a specific Message from the Queue

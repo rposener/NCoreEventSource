@@ -29,6 +29,9 @@ namespace NCoreEventServer.SqlStore.Models
         /// </summary>
         public string JsonBody { get; set; }
 
+        /// <summary>
+        /// The Related Subscriber
+        /// </summary>
         public SubscriberEntity Subscriber { get; set; }
     }
 }

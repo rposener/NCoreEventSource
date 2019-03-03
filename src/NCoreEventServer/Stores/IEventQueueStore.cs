@@ -5,29 +5,28 @@ using System.Threading.Tasks;
 namespace NCoreEventServer.Stores
 {
     /// <summary>
-    /// IEventLogStore provides an orderly way to read events
+    /// IEventQueueStore provides an orderly way to read events
     /// </summary>
     public interface IEventQueueStore
     {
         /// <summary>
-        /// Adds a <seealso cref="ServerEventMessage"/> to the LogStore
+        /// Adds a <seealso cref="ServerEventMessage"/> to the QueueStore
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        Task<long> AddEventAsync(ServerEventMessage message);
+        Task<long> EnqueueEventAsync(ServerEventMessage message);
 
         /// <summary>
-        /// Reads the next <seealso cref="ServerEventMessage"/>s from the LogStore
+        /// Reads the next <seealso cref="ServerEventMessage"/> from the QueueStore
         /// </summary>
-        /// <param name="Max">Maximum number of events to Read</param>
         /// <returns></returns>
-        Task<IEnumerable<ServerEventMessage>> NextEventsAsync(int Max);
+        Task<ServerEventMessage> PeekEventAsync();
 
         /// <summary>
-        /// Removes the <seealso cref="ServerEventMessage"/> from the LogStore Once Processed
+        /// Removes the <seealso cref="ServerEventMessage"/> from the QueueStore Once Processed
         /// </summary>
         /// <returns></returns>
-        Task ClearEventAsync(long id);
+        Task DequeueEventAsync(long id);
 
         /// <summary>
         /// Marks the <seealso cref="ServerEventMessage"/> as Poisoned

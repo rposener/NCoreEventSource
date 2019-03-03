@@ -91,11 +91,11 @@ namespace NCoreEventServerTests.Services.Default
                     })
                 .Verifiable();
             Mock.Get(subscriberQueueStore)
-                .Setup(q => q.AddSubscriberMessageAsync(It.Is<SubscriberMessage>(v => v.DestinationUri == new Uri("https://server-test/path/2352") && v.JsonBody == "{test}")))
+                .Setup(q => q.EnqueueMessageAsync(It.Is<SubscriberMessage>(v => v.DestinationUri == new Uri("https://server-test/path/2352") && v.JsonBody == "{test}")))
                 .Returns(Task.CompletedTask)
                 .Verifiable();
             Mock.Get(subscriberQueueStore)
-                .Setup(q => q.AddSubscriberMessageAsync(It.Is<SubscriberMessage>(v => v.DestinationUri == new Uri("https://another-test/some-long-post-to-me") && v.JsonBody == "{test}")))
+                .Setup(q => q.EnqueueMessageAsync(It.Is<SubscriberMessage>(v => v.DestinationUri == new Uri("https://another-test/some-long-post-to-me") && v.JsonBody == "{test}")))
                 .Returns(Task.CompletedTask)
                 .Verifiable();
 

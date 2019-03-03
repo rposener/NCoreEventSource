@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using AutoMapper;
 
-namespace NCoreEventServer.SqlStore.Tests
+namespace NCoreEventServer.RedisStore.Tests
 {
     [TestClass]
     public class MappingProfileTests

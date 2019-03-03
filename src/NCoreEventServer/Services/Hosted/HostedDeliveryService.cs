@@ -17,8 +17,10 @@ namespace NCoreEventServer.Services
     /// via the <seealso cref="IDeliveryService"/> and Updates the status of <seealso cref="Subscriber"/>s
     /// in the <seealso cref="ISubscriberStore"/>.
     /// </summary>
-    public class HostedDeliveryService : BackgroundService
+    public class HostedDeliveryService : IHostedService, IDisposable
     {
+        private Task workerTask;
+        private readonly CancellationTokenSource stoppingToken = new CancellationTokenSource();
         private readonly TriggerService triggerService;
         private readonly IServiceProvider serviceProvider;
         private readonly ILogger<HostedDeliveryService> logger;
@@ -38,16 +40,38 @@ namespace NCoreEventServer.Services
         }
 
         
-        public override Task StartAsync(CancellationToken cancellationToken)
+        public Task StartAsync(CancellationToken cancellationToken)
         {
             logger.LogInformation(nameof(HostedDeliveryService) + " has started.");
-            return base.StartAsync(cancellationToken);
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                workerTask = DeliveryLoop();
+                logger.LogInformation(nameof(HostedDeliveryService) + " has started.");
+            }
+            return Task.CompletedTask;
         }
 
-        public override Task StopAsync(CancellationToken cancellationToken)
+        public async Task StopAsync(CancellationToken cancellationToken)
         {
+            logger.LogInformation(nameof(HostedDeliveryService) + " is stopping.");
+
+            // Stop called without start
+            if (workerTask == null)
+            {
+                return;
+            }
+
+            try
+            {
+                // Signal cancellation to the worker Tasks
+                stoppingToken.Cancel();
+            }
+            finally
+            {
+                // Wait until the task completes or the stop token triggers
+                await Task.WhenAny(workerTask, Task.Delay(Timeout.Infinite, cancellationToken));
+            }
             logger.LogInformation(nameof(HostedDeliveryService) + " has stopped.");
-            return base.StopAsync(cancellationToken);
         }
 
         /// <summary>
@@ -56,7 +80,7 @@ namespace NCoreEventServer.Services
         /// </summary>
         /// <param name="stoppingToken"></param>
         /// <returns></returns>
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected async Task DeliveryLoop()
         {
             try
             {
@@ -65,7 +89,9 @@ namespace NCoreEventServer.Services
                     logger.LogInformation("Starting Delivery!");
                     await DeliverAllMessagesInQueue();
                     logger.LogInformation("Delivery Caught up, Waiting for More Events");
-                    await triggerService.DeliveryStart.WaitOneAsync(TimeSpan.FromSeconds(15));
+
+                    // Default Pause when caught-up before checking again (unless ResetEvent is Set)
+                    await triggerService.DeliveryStart.WaitOneAsync(TimeSpan.FromSeconds(1));
                 }
             }
             catch (Exception ex)
@@ -88,13 +114,14 @@ namespace NCoreEventServer.Services
 
                 if (subscribersToSend != null && subscribersToSend.Any())
                 {
+                    // Send to 4 subscribers concurrently
                     await subscribersToSend.ForEachAsync(4, DeliverMessagesToSubscriber);
                 }
             }
         }
 
         /// <summary>
-        /// Delivers Messages to a Single Subscriber
+        /// Delivers all Pending Messages for a Single Subscriber
         /// </summary>
         /// <param name="SubscriberId"></param>
         /// <returns></returns>
@@ -116,7 +143,7 @@ namespace NCoreEventServer.Services
                 }
 
                 // Deliver each message in sequence until all messages are deliverd
-                var nextMessage = await queueService.NextMessageForAsync(SubscriberId);
+                var nextMessage = await queueService.PeekMessageAsync(SubscriberId);
                 while (nextMessage != null)
                 {
                     var result = await deliveryService.DeliverMessage(nextMessage.DestinationUri, nextMessage.JsonBody);
@@ -132,8 +159,13 @@ namespace NCoreEventServer.Services
                         return;
                     }
                     await queueService.ClearMessageAsync(nextMessage.MessageId);
+
+                    // Stop if Requested
+                    if (stoppingToken.IsCancellationRequested)
+                        return;
+
                     // Attempt to get the next message
-                    nextMessage = await queueService.NextMessageForAsync(SubscriberId);
+                    nextMessage = await queueService.PeekMessageAsync(SubscriberId);
                 }
 
                 // Check the Subscriber Status
@@ -148,6 +180,12 @@ namespace NCoreEventServer.Services
                     await subscriberStore.UpdateSubscriberAsync(subscriber);
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            // Signal cancellation to the worker Tasks
+            stoppingToken.Cancel();
         }
     }
 }

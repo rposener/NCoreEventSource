@@ -91,7 +91,7 @@ namespace NCoreEventServerTests.Services.Hosted
                 .Verifiable();
             var msg1 = new SubscriberMessage() { DestinationUri = new Uri("https://server1/path"), MessageId = 234L, SubscriberId = "sub1", JsonBody = "test" };
             Mock.Get(subscriberQueueStore)
-               .Setup(s => s.NextMessageForAsync(It.Is<string>(v => v == "sub1")))
+               .Setup(s => s.PeekMessageAsync(It.Is<string>(v => v == "sub1")))
                .ReturnsAsync(msg1)
                .Verifiable();
             Mock.Get(subscriberQueueStore)
@@ -101,7 +101,7 @@ namespace NCoreEventServerTests.Services.Hosted
                .Verifiable();
             var msg2 = new SubscriberMessage() { DestinationUri = new Uri("https://server2/path"), MessageId = 544L, SubscriberId = "sub2", JsonBody= "test" };
             Mock.Get(subscriberQueueStore)
-               .Setup(s => s.NextMessageForAsync(It.Is<string>(v => v == "sub2")))
+               .Setup(s => s.PeekMessageAsync(It.Is<string>(v => v == "sub2")))
                .ReturnsAsync(msg2)
                .Verifiable();
             Mock.Get(subscriberQueueStore)

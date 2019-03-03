@@ -19,8 +19,10 @@ namespace NCoreEventServer.Services
     /// <seealso cref="IEventProcessingService"/> and <seealso cref="IObjectUpdateService"/> for each <seealso cref="ServerEventMessage"/>
     /// in the <seealso cref="IEventQueueStore"/>.
     /// </summary>
-    public class HostedProcessingService : BackgroundService
+    public class HostedProcessingService : IHostedService, IDisposable
     {
+        private Task workerTask;
+        private readonly CancellationTokenSource stoppingToken = new CancellationTokenSource();
         private readonly TriggerService triggerService;
         private readonly IServiceProvider serviceProvider;
         private readonly ILogger<HostedProcessingService> logger;
@@ -39,16 +41,48 @@ namespace NCoreEventServer.Services
             logger.LogInformation(nameof(HostedProcessingService) + " is created.");
         }
 
-        public override Task StartAsync(CancellationToken cancellationToken)
+        /// <summary>
+        /// Implementation of <seealso cref="IHostedService"/> to start processing
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public Task StartAsync(CancellationToken cancellationToken)
         {
-            logger.LogInformation(nameof(HostedProcessingService) + " has started.");
-            return base.StartAsync(cancellationToken);
+            logger.LogInformation(nameof(HostedProcessingService) + $" is starting.");
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                workerTask = ProcessEvents();
+                logger.LogInformation(nameof(HostedProcessingService) + " has started.");
+            }
+            return Task.CompletedTask;
         }
 
-        public override Task StopAsync(CancellationToken cancellationToken)
+        /// <summary>
+        /// Implementation of <seealso cref="IHostedService"/> to stop processing
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task StopAsync(CancellationToken cancellationToken)
         {
-            logger.LogInformation(nameof(HostedProcessingService) + " has stopped.");
-            return base.StopAsync(cancellationToken);
+            logger.LogInformation(nameof(HostedProcessingService) + " is stopping.");
+
+            // Stop called without start
+            if (workerTask == null)
+            {
+                return;
+            }
+
+            try
+            {
+                // Signal cancellation to the worker Tasks
+                stoppingToken.Cancel();
+            }
+            finally
+            {
+                // Wait until the task completes or the stop token triggers
+                await Task.WhenAny(workerTask, Task.Delay(Timeout.Infinite, cancellationToken));
+            }
+            logger.LogInformation(nameof(HostedProcessingService) + " has stopped.");           
         }
 
         /// <summary>
@@ -56,10 +90,10 @@ namespace NCoreEventServer.Services
         /// until <paramref name="stoppingToken"/> requests Stop
         /// starts instantly upon <seealso cref="TriggerService.ProcessingStart"/> reset 
         /// </summary>
-        /// <param name="stoppingToken"></param>
         /// <returns></returns>
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        public async Task ProcessEvents()
         {
+            Random delayJitter = new Random();
             try
             {
                 while (!stoppingToken.IsCancellationRequested)
@@ -67,7 +101,9 @@ namespace NCoreEventServer.Services
                     logger.LogInformation("Starting Injestion!");
                     await ProcessAllMessagesInQueue();
                     logger.LogInformation("Injestion Caught up, Waiting for More Events");
-                    await triggerService.ProcessingStart.WaitOneAsync(TimeSpan.FromSeconds(15));
+
+                    // Default Pause when caught-up before checking again (unless ResetEvent is Set)
+                    await triggerService.ProcessingStart.WaitOneAsync(TimeSpan.FromSeconds(1));
                 }
             }
             catch (Exception ex)
@@ -91,45 +127,52 @@ namespace NCoreEventServer.Services
                 var processingService = scope.ServiceProvider.GetRequiredService<IEventProcessingService>();
                 var objectUpdateService = scope.ServiceProvider.GetRequiredService<IObjectUpdateService>();
 
-                IEnumerable<ServerEventMessage> pendingEvents = await eventQueueStore.NextEventsAsync(options.Value.InjestionBatchSize);
-                if (pendingEvents != null && pendingEvents.Any())
+                ServerEventMessage pendingEvent = await eventQueueStore.PeekEventAsync();
+                if (pendingEvent != null)
                 {
-                    foreach (var pendingEvent in pendingEvents)
+                    try
                     {
-                        try
-                        {
-                            logger.LogDebug($"Processing Event #{pendingEvent.LogId}");
-                            // Start with Metadata updates
-                            if (options.Value.AutoDiscoverEvents && pendingEvent.IsServerEventMessage())
-                                await metadataService.AutoDiscoverEventsAsync(pendingEvent);
-                            if (options.Value.AutoDiscoverObjectTypes && pendingEvent.IsObjectMessage())
-                                await metadataService.AutoDiscoverObjectsAsync(pendingEvent);
+                        logger.LogDebug($"Processing Event #{pendingEvent.LogId}");
+                        // Start with Metadata updates
+                        if (options.Value.AutoDiscoverEvents && pendingEvent.IsServerEventMessage())
+                            await metadataService.AutoDiscoverEventsAsync(pendingEvent);
+                        if (options.Value.AutoDiscoverObjectTypes && pendingEvent.IsObjectMessage())
+                            await metadataService.AutoDiscoverObjectsAsync(pendingEvent);
 
-                            // Process the Event (if Topic is Set)
-                            if (pendingEvent.IsServerEventMessage())
-                                await processingService.ProcessEvent(pendingEvent.Topic, pendingEvent.EventJson);
+                        // Process the Event (if Topic is Set)
+                        if (pendingEvent.IsServerEventMessage())
+                            await processingService.ProcessEvent(pendingEvent.Topic, pendingEvent.EventJson);
 
-                            // Process the Object (if ObjectType is set)
-                            if (pendingEvent.IsObjectMessage())
-                                await objectUpdateService.UpdateObject(pendingEvent.ObjectType, pendingEvent.ObjectId, pendingEvent.ObjectUpdate);
-                        }
-                        catch (Exception ex)
-                        {
-                            logger.LogCritical(ex, ex.Message);
-                            await eventQueueStore.PoisonedEventAsync(pendingEvent.LogId);
-                            continue;
-                        }
+                        // Process the Object (if ObjectType is set)
+                        if (pendingEvent.IsObjectMessage())
+                            await objectUpdateService.UpdateObject(pendingEvent.ObjectType, pendingEvent.ObjectId, pendingEvent.ObjectUpdate);
+
                         // Clear the Event as Processed
-                        await eventQueueStore.ClearEventAsync(pendingEvent.LogId);
+                        await eventQueueStore.DequeueEventAsync(pendingEvent.LogId);
+
+                        // Trigger Delivery
+                        triggerService.DeliveryStart.Set();
                     }
-
-                    // Trigger Delivery
-                    triggerService.DeliveryStart.Set();
-
-                    // Keep checking for more Events
-                    pendingEvents = await eventQueueStore.NextEventsAsync(options.Value.InjestionBatchSize);
+                    catch (Exception ex)
+                    {
+                        logger.LogCritical(ex, ex.Message);
+                        await eventQueueStore.PoisonedEventAsync(pendingEvent.LogId);
+                    }
                 }
+
+                // Stop immediately if requested
+                if (stoppingToken.IsCancellationRequested)
+                    return;
+
+                // Keep checking for more Events
+                pendingEvent = await eventQueueStore.PeekEventAsync();
             }
+        }
+
+        public void Dispose()
+        {
+            // Signal cancellation to the worker Tasks
+            stoppingToken.Cancel();
         }
     }
 }

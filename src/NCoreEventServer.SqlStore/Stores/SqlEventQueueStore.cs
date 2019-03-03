@@ -28,7 +28,7 @@ namespace NCoreEventServer.SqlStore.Stores
             this.context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<long> AddEventAsync(ServerEventMessage message)
+        public async Task<long> EnqueueEventAsync(ServerEventMessage message)
         {
             logger.LogInformation("Adding Event To Queue");
             var entity = mapper.Map<ServerEventMessageEntity>(message);
@@ -37,18 +37,18 @@ namespace NCoreEventServer.SqlStore.Stores
             return entity.LogId;
         }
 
-        public async Task ClearEventAsync(long id)
+        public async Task DequeueEventAsync(long id)
         {
             logger.LogInformation("Clearing Event from Queue");
             context.EventMessages.Remove(new ServerEventMessageEntity { LogId = id });
             await context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<ServerEventMessage>> NextEventsAsync(int Max)
+        public async Task<ServerEventMessage> PeekEventAsync()
         {
             logger.LogInformation("Getting next Events from Queue");
-            var entities = await context.EventMessages.Take(Max).ToArrayAsync();
-            return mapper.Map<IEnumerable<ServerEventMessage>>(entities);
+            var firstEvent = await context.EventMessages.FirstOrDefaultAsync();
+            return mapper.Map<ServerEventMessage>(firstEvent);
         }
 
         public async Task PoisonedEventAsync(long id)

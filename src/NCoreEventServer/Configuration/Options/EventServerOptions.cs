@@ -11,17 +11,17 @@ namespace NCoreEventServer.Configuration
     public class EventServerOptions
     {
         const int MIN_SIZE = 1;
-        const int MAX_SIZE = 265;
+        const int MAX_SIZE = 8;
 
-        int injestionBatchSize;
+        int eventProcessors;
 
         public EventServerOptions()
         {
             AutoDiscoverEvents = true;
             AutoDiscoverObjectTypes = true;
-            injestionBatchSize = 8;
             InjestionPath = "/eventserver/injest";
             RegistationPath = "/eventserver/register";
+            EventProcessors = Math.Max(MIN_SIZE, Math.Max(MAX_SIZE, Environment.ProcessorCount/2));
         }
 
         /// <summary>
@@ -35,16 +35,16 @@ namespace NCoreEventServer.Configuration
         public bool AutoDiscoverObjectTypes { get; set; }
 
         /// <summary>
-        /// Number of Items the InjestionService Processes at a time
+        /// Number of Tasks Processes at a time
         /// </summary>
-        public int InjestionBatchSize
+        public int EventProcessors
         {
-            get { return injestionBatchSize; }
+            get { return eventProcessors; }
             set
             {
                 if (value < MIN_SIZE || value > MAX_SIZE)
-                    throw new ArgumentOutOfRangeException(nameof(InjestionBatchSize), $"Injestion Batch should be between {MIN_SIZE} and {MAX_SIZE}");
-                injestionBatchSize = value;
+                    throw new ArgumentOutOfRangeException(nameof(EventProcessors), $"Event Processors should be between {MIN_SIZE} and {MAX_SIZE}");
+                eventProcessors = value;
             }
         }
 
