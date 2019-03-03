@@ -25,8 +25,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 return new RedisManagerPool(opts.Value.ConnectionString);
             });
             builder.Services.AddScoped<IEventQueueStore, RedisEventQueueStore>();
-            //builder.Services.AddScoped<IMetadataStore, SqlMetadataStore>();
-            //builder.Services.AddScoped<IObjectStore, SqlObjectStore>();
+            builder.Services.AddScoped<IMetadataStore, RedisMetadataStore>();
+            builder.Services.AddScoped<IObjectStore, RedisObjectStore>();
             //builder.Services.AddScoped<ISubscriberQueueStore, SqlSubscriberQueueStore>();
             //builder.Services.AddScoped<ISubscriberStore, SqlSubscriberStore>();
             return builder;
